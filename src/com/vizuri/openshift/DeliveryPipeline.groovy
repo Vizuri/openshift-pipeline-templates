@@ -48,7 +48,6 @@ def call(body) {
          }
 
          stage ('test') {
-             steps {
                 parallel (
                    "unit tests": { sh 'mvn -s configuration/settings.xml -Dbuild.number=${release_number} test' },
                    "integration tests": { sh 'mvn -s configuration/settings.xml -Dbuild.number=${release_number} integration-test' }
@@ -58,7 +57,6 @@ def call(body) {
                 step([$class: 'XUnitBuilder',
                    thresholds: [[$class: 'FailedThreshold', unstableThreshold: '1']],
                    tools: [[$class: 'JUnitType', pattern: 'target/surefire-reports/*.xml']]])
-             }
          }
 
          stage('DockerBuild') {
