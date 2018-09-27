@@ -60,6 +60,7 @@ def call(body) {
 		      }
 		      bc = bc.narrow("bc");
 		      bc.startBuild("--from-dir .")
+                      bc.logs('-f')
 		  }
 	      }
 	  }	
@@ -77,6 +78,7 @@ def call(body) {
 		      else {
 		            dc = dc.narrow("dc")
 		            dc.deploy("--latest")
+                            dc.logs('-f')
 	              }
 		}
              }
