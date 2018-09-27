@@ -33,7 +33,7 @@ def call(body) {
 	         }
       }
       else {
-         release_number = snapshot_release_number
+         release_number = pipelineParams.snapshot_release_number
          ocp_project = ocp_dev_project
       }
       
