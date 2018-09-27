@@ -34,7 +34,7 @@ def call(body) {
       }
       else {
          release_number = pipelineParams.snapshot_release_number
-         ocp_project = ocp_dev_project
+         ocp_project = pipelineParams.ocp_dev_project
       }
       
       node('maven') {	
@@ -48,8 +48,8 @@ def call(body) {
          }
 
          stage('DockerBuild') {
-             echo "In DockerBuild: ${ocp_cluster} : ${ocp_project}" 
-	     openshift.withCluster( "${ocp_cluster}" ) {
+             echo "In DockerBuild: ${pipelineParams.ocp_cluster} : ${ocp_project}" 
+	     openshift.withCluster( "${pipelineParams.ocp_cluster}" ) {
 	          openshift.withProject( "${ocp_project}" ) {
 		      def bc = openshift.selector("bc", "${app_name}")
 		      echo "BC: " + bc
@@ -64,7 +64,7 @@ def call(body) {
 	      }
 	  }	
 	  stage('Deploy') {
-	     openshift.withCluster( 'openshift-v3.9' ) {
+	     openshift.withCluster( "${pipelineParams.ocp_cluster}" ) {
 	         openshift.withProject( "${ocp_project}" ) {
 		      echo "In Deploy: ${openshift.project()} : ${ocp_project}"
 		      def dc = openshift.selector("dc", "${app_name}")
