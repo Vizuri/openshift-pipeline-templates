@@ -1,8 +1,4 @@
-#!/usr/bin/groovy
-@Library('github.com/vizuri/openshift-pipeline-templates@master')
-def utils = new com.vizuri.openshift.Utils();
-utils.helloWorld();
-
+package com.vizuri.openshift
 
 def call(body) {
     def pipelineParams= [:]
