@@ -44,7 +44,7 @@ def call(body) {
       }
       
       node('maven') {	
-         utils.buildJava('maven', release_number)
+         utils.buildJava(release_number)
 
          javaBuildPipeline {
               app_name = 'ldap-demo'
