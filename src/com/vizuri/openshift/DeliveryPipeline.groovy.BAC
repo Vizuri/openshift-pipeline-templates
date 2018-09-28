@@ -38,24 +38,26 @@ def call(body) {
       }
       
       node('maven') {	
-        def javaBuildPipeline = new com.vizuri.openshift.JavaBuildPipeline();
-
-         javaBuildPipeline {
-              app_name = 'ldap-demo'
-              snapshot_release_number = '1.0-SNAPSHOT'
-              ocp_dev_project = 'ldap-development'
-              ocp_cluster = 'ocp-aws-01'
-
-
-              //branch = 'master'
-              //scmUrl = 'ssh://git@myScmServer.com/repos/myRepo.git'
-              //email = 'team@example.com'
-              //serverPort = '8080'
-              //developmentServer = 'dev-myproject.mycompany.com'
-              //stagingServer = 'staging-myproject.mycompany.com'
-              //productionServer = 'production-myproject.mycompany.com'
+         stage('Checkout') {
+              echo "In checkout" 
+    	      checkout scm
+         }
+         stage('Build') {
+              echo "In Build"		
+              sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} clean install"
          }
 
+         stage ('test') {
+                parallel (
+                   "unit tests": { sh 'mvn -s configuration/settings.xml -Dbuild.number=${release_number} test' },
+                   "integration tests": { sh 'mvn -s configuration/settings.xml -Dbuild.number=${release_number} integration-test' }
+                )
+                junit 'target/surefire-reports/*.xml'
+
+                step([$class: 'XUnitBuilder',
+                   thresholds: [[$class: 'FailedThreshold', unstableThreshold: '1']],
+                   tools: [[$class: 'JUnitType', pattern: 'target/surefire-reports/*.xml']]])
+         }
 
          stage('DockerBuild') {
              echo "In DockerBuild: ${pipelineParams.ocp_cluster} : ${ocp_project}" 
