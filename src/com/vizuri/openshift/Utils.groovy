@@ -65,8 +65,8 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
                       }
                       else {
                             //dc = dc.narrow("dc")
-                            def rm = dc.rollout()
-                            //dc.logs('-f')
+                            def ro = dc.rollout()
+                            ro.logs('-f')
                       }
                 }
              }
