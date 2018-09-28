@@ -38,7 +38,7 @@ def call(body) {
       }
       
       node('maven') {	
-        def javaBuildPipeline = new com.vizuri.openshift.JavaBuildPipeline();
+         def javaBuildPipeline = new com.vizuri.openshift.JavaBuildPipeline();
 
          javaBuildPipeline {
               app_name = 'ldap-demo'
