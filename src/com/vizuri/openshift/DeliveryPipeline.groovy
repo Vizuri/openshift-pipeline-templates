@@ -88,7 +88,7 @@ def call(body) {
 		      else {
 		            dc = dc.narrow("dc")
 		            dc.deploy("--latest")
-                            dc.logs('-f')
+                            //dc.logs('-f')
 	              }
 		}
              }
