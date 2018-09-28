@@ -3,10 +3,10 @@ package com.vizuri.openshift
 
 @Library('github.com/vizuri/openshift-pipeline-templates@master')
 
-def utils = new com.vizuri.openshift.Utils();
 
 
 def call(body) {
+    def utils = new com.vizuri.openshift.Utils();
     def pipelineParams= [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = pipelineParams

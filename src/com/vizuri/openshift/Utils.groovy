@@ -8,7 +8,7 @@ def helloWorld() {
 
 def buildJava(node, release_number) {
       echo "In buildJava: ${node} : ${release_number}"
-      node(node) {
+//      node(node) {
          stage('Checkout') {
               echo "In checkout"
               checkout scm
@@ -29,6 +29,6 @@ def buildJava(node, release_number) {
                    thresholds: [[$class: 'FailedThreshold', unstableThreshold: '1']],
                    tools: [[$class: 'JUnitType', pattern: 'target/surefire-reports/*.xml']]])
          }
-     }
+//     }
 }
 
