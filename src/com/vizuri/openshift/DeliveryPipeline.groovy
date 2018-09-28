@@ -1,4 +1,10 @@
+#!/usr/bin/groovy
 package com.vizuri.openshift
+
+@Library('github.com/vizuri/openshift-pipeline-templates@master')
+
+def utils = new com.vizuri.openshift.Utils();
+
 
 def call(body) {
     def pipelineParams= [:]
@@ -38,7 +44,7 @@ def call(body) {
       }
       
       node('maven') {	
-         def javaBuildPipeline = new com.vizuri.openshift.JavaBuildPipeline();
+         utils.buildJava('maven', release_number)
 
          javaBuildPipeline {
               app_name = 'ldap-demo'
