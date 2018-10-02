@@ -57,7 +57,7 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 					echo "BC Does Not Exist Creating"
 					bc = openshift.newBuild("--binary=true --strategy=docker --name=${pipelineParams.app_name}")
 				}
-				bc = bc.narrow("bc");
+				//bc = bc.narrow("bc");
 				bc.startBuild("--from-dir .")
 			}
 			bc.logs('-f')
