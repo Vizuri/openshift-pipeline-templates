@@ -31,7 +31,7 @@ def call(body) {
 
 			stage('Confirm Deploy?') {
 				milestone 1
-				input message: "Do you want to deploy release ${BRANCH_NAME} to test?" submitter: "developer"
+				input message: "Do you want to deploy release ${BRANCH_NAME} to test?", submitter: "developer"
 			}
 		}
 		else {
