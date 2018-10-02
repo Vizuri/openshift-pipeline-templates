@@ -37,9 +37,9 @@ def testJava(release_number) {
 }
 
 def deployJava(release_number) {
-	echo "In buildJava: ${release_number}"
+	echo "In deployJava: ${release_number}"
 
-	stage('Deploy Jave') {
+	stage('Deploy Java') {
 		echo "In Deploy"
 		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} deploy"
 	}
@@ -59,8 +59,8 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				}
 				//bc = bc.narrow("bc");
 				bc.startBuild("--from-dir .")
+			        bc.logs('-f')
 			}
-			bc.logs('-f')
 		}
 	}
 }
