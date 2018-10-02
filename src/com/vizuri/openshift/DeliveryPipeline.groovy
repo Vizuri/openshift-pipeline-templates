@@ -42,6 +42,7 @@ def call(body) {
 		node('maven') {
 			utils.buildJava(release_number)
 			utils.testJava(release_number)
+			utils.deployJava(release_number)
 			utils.dockerBuildOpenshift(pipelineParams.ocp_cluster, ocp_project, pipelineParams.app_name )
 			utils.deployOpenshift(pipelineParams.ocp_cluster, ocp_project, pipelineParams.app_name )
 		}
