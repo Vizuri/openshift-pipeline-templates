@@ -61,23 +61,20 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				bc.startBuild("--from-dir .")
 
 				bc.logs('-f')
+				
+				echo "BC Status:" + bc.status
 
-				def builds = bc.related('builds')
-				timeout(2) {
-					builds.untilEach(1) {
-						echo "In Look for bc status:" + it.object().status.phase
-						//return (it.object().status.phase == "Complete")
-						if(it.object().status.phase == "Failed") {
-							echo "Returning Failed"
-							failBuild()
-						}
-						return (it.object().status.phase == "Complete")
-//						else if (it.object().status.phase == "Complete") {
-//							echo "Returning Completed"
-//							return true
+//				def builds = bc.related('builds')
+//				timeout(5) {
+//					builds.untilEach(1) {
+//						echo "In Look for bc status:" + it.object().status.phase
+//						if(it.object().status.phase == "Failed") {
+//							echo "Returning Failed"
+//							return false
 //						}
-					}
-				}
+//						return (it.object().status.phase == "Complete")
+//					}
+//				}
 
 
 
@@ -105,11 +102,10 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 					dc.related('pods').untilEach(1) {
 						//return (it.object().status.phase == "Running")
 						if(it.object().status.phase == "Failed") {
-							return false
+							echo "Returning Failed"
+							failBuild()
 						}
-						else if (it.object().status.phase == "Running")	{
-							return true
-						}
+						return (it.object().status.phase == "Running")
 					}
 					//rm.status()
 					//dc.logs('-f')
