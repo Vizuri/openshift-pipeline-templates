@@ -69,12 +69,13 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 						//return (it.object().status.phase == "Complete")
 						if(it.object().status.phase == "Failed") {
 							echo "Returning Failed"
-							return false
+							failBuild()
 						}
-						else if (it.object().status.phase == "Complete") {
-							echo "Returning Completed"
-							return true
-						}
+						return (it.object().status.phase == "Complete")
+//						else if (it.object().status.phase == "Complete") {
+//							echo "Returning Completed"
+//							return true
+//						}
 					}
 				}
 
