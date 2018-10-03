@@ -62,7 +62,12 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 
 				bc.logs('-f')
 				
-				echo "BC Status:" + bc.status
+				echo "BC Status:" + bc.status + ":" + bc.status.phase
+				
+				
+				if(bc.status != 0 ) {
+					return false
+				}
 
 //				def builds = bc.related('builds')
 //				timeout(5) {
