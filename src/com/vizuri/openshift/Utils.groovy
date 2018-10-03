@@ -78,7 +78,8 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 					dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=docker-registry.default.svc:5000/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}")
 				}
 			        //dc = dc.narrow("dc")
-				def rm = dc.rollout().latest()
+				def rm = dc.rollout()
+                                rm.latest()
                                 rm.status()
 				//dc.logs('-f')
 			}
