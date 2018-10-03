@@ -59,19 +59,25 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				}
 				//bc = bc.narrow("bc");
 				bc.startBuild("--from-dir .")
-				
+
 				bc.logs('-f')
-				
+
 				def builds = bc.related('builds')
 				timeout(1) {
-				  builds.untilEach(1) {
-                                        echo "In Look for bc status:" + it.object().status.phase
-					return (it.object().status.phase == "Complete")
-				  }
+					builds.untilEach(1) {
+						echo "In Look for bc status:" + it.object().status.phase
+						//return (it.object().status.phase == "Complete")
+						if(it.object().status.phase == "Failed") {
+							return false
+						}
+						else if (it.object().status.phase == "Complete") {
+							return true
+						}
+					}
 				}
-				
-				
-				
+
+
+
 			}
 		}
 	}
@@ -89,18 +95,23 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 					echo "DC Does Not Exist Creating"
 					dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=docker-registry.default.svc:5000/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}")
 				}
-			        //dc = dc.narrow("dc")
+				//dc = dc.narrow("dc")
 				def rm = dc.rollout()
-                rm.latest()
+				rm.latest()
 				timeout(5) {
 					dc.related('pods').untilEach(1) {
-					  return (it.object().status.phase == "Running")
+						//return (it.object().status.phase == "Running")
+						if(it.object().status.phase == "Failed") {
+							return false
+						}
+						else if (it.object().status.phase == "Running")	{
+							return true
+						}
 					}
+					//rm.status()
+					//dc.logs('-f')
 				}
-				//rm.status()
-				//dc.logs('-f')
 			}
 		}
 	}
 }
-
