@@ -59,7 +59,18 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				}
 				//bc = bc.narrow("bc");
 				bc.startBuild("--from-dir .")
+				
 				bc.logs('-f')
+				
+				def builds = bc.related('builds')
+				timeout(5) {
+				  builds.untilEach(1) {
+					return (it.object().status.phase == "Complete")
+				  }
+				}
+				
+				
+				
 			}
 		}
 	}
@@ -79,8 +90,13 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 				}
 			        //dc = dc.narrow("dc")
 				def rm = dc.rollout()
-                                rm.latest()
-                                rm.status()
+                rm.latest()
+				timeout(5) {
+					dc.related('pods').untilEach(1) {
+					  return (it.object().status.phase == "Running")
+					}
+				}
+				//rm.status()
 				//dc.logs('-f')
 			}
 		}
