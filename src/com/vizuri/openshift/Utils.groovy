@@ -62,7 +62,7 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 
 				bc.logs('-f')
 				
-				echo "BC Status:" + bc.status + ":" + bc.status.phase
+				echo "BC Status:" + bc.status 
 				
 				
 				if(bc.status != 0 ) {
