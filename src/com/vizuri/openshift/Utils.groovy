@@ -72,7 +72,7 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				def builds = bc.related('builds')
 				
 				timeout(5) {
-					builds.untilEach(1) {
+					builds.watch {
 						echo "In Look for bc status:" + it.count()
 						def allDone = true
 						it.withEach {
