@@ -74,6 +74,9 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				timeout(5) {
 					builds.watch {
 						echo "In Look for bc status:" + it.count()
+						echo "First Build:" + it.first();
+						echo "Last Build:" + it.last();
+						
 						def allDone = true
 						it.withEach {
 							// 'it' is now bound to a Selector selecting a single object for this iteration.
