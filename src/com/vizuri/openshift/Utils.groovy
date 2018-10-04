@@ -118,17 +118,11 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 				//dc = dc.narrow("dc")
 				def rm = dc.rollout()
 				rm.latest()
+				rm.logs(-f)
 				timeout(5) {
-					dc.related('pods').untilEach(1) {
-						//return (it.object().status.phase == "Running")
-						if(it.object().status.phase == "Failed") {
-							echo "Returning Failed"
-							failBuild()
-						}
+					rm.related('pods').untilEach(1) {
 						return (it.object().status.phase == "Running")
 					}
-					//rm.status()
-					//dc.logs('-f')
 				}
 			}
 		}
