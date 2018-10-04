@@ -90,7 +90,7 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 						echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
 						if(it.object().status.phase == "Failed") {
 							currentBuild.result = 'FAILURE'
-							return true
+							error("Docker Openshift Build Failed")
 						}
 						return (it.object().status.phase == "Complete")
 					}
