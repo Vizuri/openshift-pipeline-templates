@@ -58,58 +58,43 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 					bc = openshift.newBuild("--binary=true --strategy=docker --name=${app_name}").narrow("bc")
 				}
 				//bc = bc.narrow("bc");
-				def bs = bc.startBuild("--from-dir .")
-				bs.watch {
-					echo "In Loop for BS status:" + it.count()
-				}
-			    
+				def builds = bc.startBuild("--from-dir .")
 
-				bc.logs('-f')
+				builds.logs('-f')
 				
 				echo("BUILD Finished")
-				echo "BC Status:" + bc.status
 				
-				echo "BUILD Status:" + build.status
-				
-				
-				
-				if(bc.status != 0 ) {
-					return false
-				}
-				
-				def builds = bc.related('builds')
-				
-				timeout(5) {
-					builds.watch {
-						echo "In Look for bc status:" + it.count()
-						echo "First Build:" + it.get(0);
-						echo "Last Build:" + it.get(it.count() -1)
-						
-						def allDone = true
-						it.withEach {
-							// 'it' is now bound to a Selector selecting a single object for this iteration.
-							// Let's model it in Groovy to check its status.
-							echo "Checking build: "  + it.object().status.phase
-							def buildModel = it.object()
-							if ( it.object().status.phase != "Complete" ) {
-								allDone = false
-							}
-						}
-						return allDone
-					}
-				}
-
-//				def builds = bc.related('builds')
 //				timeout(5) {
-//					builds.untilEach(1) {
-//						echo "In Look for bc status:" + it.object().status.phase
-//						if(it.object().status.phase == "Failed") {
-//							echo "Returning Failed"
-//							return false
+//					builds.watch {
+//						echo "In Look for bc status:" + it.count()
+//						echo "First Build:" + it.get(0);
+//						echo "Last Build:" + it.get(it.count() -1)
+//						
+//						def allDone = true
+//						it.withEach {
+//							// 'it' is now bound to a Selector selecting a single object for this iteration.
+//							// Let's model it in Groovy to check its status.
+//							echo "Checking build: "  + it.object().status.phase
+//							def buildModel = it.object()
+//							if ( it.object().status.phase != "Complete" ) {
+//								allDone = false
+//							}
 //						}
-//						return (it.object().status.phase == "Complete")
+//						return allDone
 //					}
 //				}
+
+//				def builds = bc.related('builds')
+				timeout(5) {
+					builds.untilEach(1) {
+						echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
+						if(it.object().status.phase == "Failed") {
+							echo "Returning Failed"
+							return false
+						}
+						return (it.object().status.phase == "Complete")
+					}
+				}
 
 
 
