@@ -121,7 +121,9 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 				
 				timeout(5) {
 					def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
+					echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
 					def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
+					echo "Got RC" + rc
 					rc.untilEach(1){
 					    def rcMap = it.object()
 					    return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
