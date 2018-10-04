@@ -58,8 +58,10 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 					bc = openshift.newBuild("--binary=true --strategy=docker --name=${app_name}").narrow("bc")
 				}
 				//bc = bc.narrow("bc");
-				def build = bc.startBuild("--from-dir .")
-				
+				def bs = bc.startBuild("--from-dir .")
+				bs.watch {
+					echo "In Loop for BS status:" + it.count()
+				}
 			    
 
 				bc.logs('-f')
@@ -67,7 +69,7 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				echo("BUILD Finished")
 				echo "BC Status:" + bc.status
 				
-				echo "BUILD Status:" + build.status.phase
+				echo "BUILD Status:" + build.status
 				
 				
 				
