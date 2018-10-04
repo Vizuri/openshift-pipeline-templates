@@ -118,7 +118,7 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 				//dc = dc.narrow("dc")
 				def rm = dc.rollout()
 				rm.latest()
-				rm.logs(-f)
+				//rm.logs(-f)
 				timeout(5) {
 					rm.related('pods').untilEach(1) {
 						return (it.object().status.phase == "Running")
