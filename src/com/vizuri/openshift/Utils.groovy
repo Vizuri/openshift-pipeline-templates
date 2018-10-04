@@ -118,12 +118,25 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 				//dc = dc.narrow("dc")
 				def rm = dc.rollout()
 				rm.latest()
-				//rm.logs(-f)
+				
+				
+				def latestDeploymentVersion = dc.status.latestVersion
+				def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
 				timeout(5) {
-					rm.related('pods').untilEach(1) {
-						return (it.object().status.phase == "Running")
+					rc.untilEach(1){
+						def rcMap = it.object()
+						echo "Checking to see if RC == DC:" + rcMap.status.replicas  + ":" + rcMap.status.readyReplica
+						return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
 					}
 				}
+				
+				rm.status()
+				//rm.logs(-f)
+//				timeout(5) {
+//					rm.related('pods').untilEach(1) {
+//						return (it.object().status.phase == "Running")
+//					}
+//				}
 			}
 		}
 	}
