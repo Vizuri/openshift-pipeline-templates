@@ -119,14 +119,12 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 				def rm = dc.rollout()
 				rm.latest()
 				
-				
-				def latestDeploymentVersion = dc.status.latestVersion
-				def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
 				timeout(5) {
+					def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
+					def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
 					rc.untilEach(1){
-						def rcMap = it.object()
-						echo "Checking to see if RC == DC:" + rcMap.status.replicas  + ":" + rcMap.status.readyReplica
-						return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+					    def rcMap = it.object()
+					    return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
 					}
 				}
 				
