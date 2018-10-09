@@ -64,27 +64,6 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				
 				echo("BUILD Finished")
 				
-//				timeout(5) {
-//					builds.watch {
-//						echo "In Look for bc status:" + it.count()
-//						echo "First Build:" + it.get(0);
-//						echo "Last Build:" + it.get(it.count() -1)
-//						
-//						def allDone = true
-//						it.withEach {
-//							// 'it' is now bound to a Selector selecting a single object for this iteration.
-//							// Let's model it in Groovy to check its status.
-//							echo "Checking build: "  + it.object().status.phase
-//							def buildModel = it.object()
-//							if ( it.object().status.phase != "Complete" ) {
-//								allDone = false
-//							}
-//						}
-//						return allDone
-//					}
-//				}
-
-//				def builds = bc.related('builds')
 				timeout(5) {
 					builds.untilEach(1) {
 						echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
