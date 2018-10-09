@@ -36,12 +36,17 @@ def testJava(release_number) {
 	}
 }
 
-def deployJava(release_number) {
+def deployJava(release_number, nexus_url) {
 	echo "In deployJava: ${release_number}"
 
 	stage('Deploy Java') {
 		echo "In Deploy"
-		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} deploy"
+		if(nexus_url != null) {
+			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexus_url} deploy"			
+		}
+		else {
+			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} deploy"
+		}
 	}
 }
 
