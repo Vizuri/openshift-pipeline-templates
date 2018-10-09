@@ -47,6 +47,8 @@ def call(body) {
 			//utils.dockerBuildOpenshift(pipelineParams.ocp_cluster, ocp_project, pipelineParams.app_name )
 			//utils.deployOpenshift(pipelineParams.ocp_cluster, ocp_project, pipelineParams.app_name )
 		}
-		utils.dockerBuild(pipelineParams.app_name)
+		node() {
+			utils.dockerBuild(pipelineParams.app_name)
+		}
 	}
 }
