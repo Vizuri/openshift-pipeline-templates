@@ -51,7 +51,9 @@ def deployJava(release_number, nexus_url) {
 }
 def dockerBuild(app_name) {
 	stage('DockerBuild') {
-		sh 'docker build -t ${app_name}:latest .'
+		echo "In DockerBuild: ${app_name} "
+		
+		sh "docker build -t ${app_name}:latest ."
 	}
 }
 
