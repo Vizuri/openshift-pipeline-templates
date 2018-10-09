@@ -49,6 +49,12 @@ def deployJava(release_number, nexus_url) {
 		}
 	}
 }
+def dockerBuildOpenshift(app_name) {
+	stage('DockerBuild') {
+		sh 'docker build -t ${app_name}:latest .'
+	}
+}
+
 
 def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 	stage('DockerBuild') {
