@@ -54,6 +54,10 @@ def dockerBuild(app_name) {
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
 		
+		sh "whoami"
+		
+		sh "docker ps"
+		
 		def img = docker.build("${app_name}:latest")
 		
 		//sh "docker build -t ${app_name}:latest ."
