@@ -50,6 +50,11 @@ def deployJava(release_number, nexus_url) {
 	}
 }
 def dockerBuild(app_name) {
+	agent {
+		docker {
+			args '-u root:sudo'
+		}
+	}
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
 		
