@@ -68,6 +68,14 @@ def dockerPush(img) {
 	}
 }
 
+def scanImage(app_name) {
+	node {
+		def imageLine = "52.91.247.224:30080/vizuri/${app_name}:latest"
+		writeFile file: 'anchore_images', text: imageLine
+		anchore name: 'anchore_images'
+	  }
+}
+
 def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${ocp_cluster} : ${ocp_project}"

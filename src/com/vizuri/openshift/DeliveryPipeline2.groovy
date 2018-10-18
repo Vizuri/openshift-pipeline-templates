@@ -52,6 +52,7 @@ def call(body) {
 			unstash 'artifacts'
 			img = utils.dockerBuild(pipelineParams.app_name)
 			utils.dockerPush(img)
+			utils.scanImage(pipelineParams.app_name )
 		}
 	}
 }
