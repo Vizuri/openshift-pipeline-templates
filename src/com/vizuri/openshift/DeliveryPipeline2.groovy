@@ -10,6 +10,11 @@ def call(body) {
 	body()
 
 	pipeline {
+		agent {
+			docker {
+				args '-u root:sudo'
+			}
+		}
 		println ">>>> Starting DeliveryPipeline";
 
 		println ">>>>>  Build Number ${BUILD_NUMBER}";
