@@ -59,8 +59,8 @@ def dockerBuild(app_name) {
 }
 
 def dockerPush(img) {
-	stage('DockerBuild') {
-		docker.withRegistry('52.91.247.224:30080', 'docker-credentials') {			
+	stage('DockerPush') {
+		docker.withRegistry('http://52.91.247.224:30080', 'docker-credentials') {			
 			echo "In DockerBuild: ${app_name} "
 			docker.push(img)
 		}
