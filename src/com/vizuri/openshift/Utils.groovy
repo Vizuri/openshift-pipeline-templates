@@ -49,7 +49,7 @@ def deployJava(release_number, nexus_url) {
 		}
 	}
 }
-def img dockerBuild(app_name) {
+def dockerBuild(app_name) {
 
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
@@ -62,7 +62,7 @@ def dockerPush(img) {
 	stage('DockerBuild') {
 		docker.withRegistry('52.91.247.224:30080', 'docker-credentials') {			
 			echo "In DockerBuild: ${app_name} "
-			def img = docker.build("${app_name}:latest")
+			docker.push(img)
 		}
 	}
 }
