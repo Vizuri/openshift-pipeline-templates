@@ -42,28 +42,30 @@ def deployJava(release_number, nexus_url) {
 	stage('Deploy Java') {
 		echo "In Deploy"
 		if(nexus_url != null) {
-			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexus_url} deploy"			
+			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexus_url} deploy"
 		}
 		else {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} deploy"
 		}
 	}
 }
-def dockerBuild(app_name) {
+def img dockerBuild(app_name) {
 
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
-		
-		sh "pwd"
-		
-		sh "ls"
-		
-		def img = docker.build("${app_name}:latest")
-		
-		//sh "docker build -t ${app_name}:latest ."
+		def img = docker.build("52.91.247.224:30080/vizuri/${app_name}:latest")
+		return img
 	}
 }
 
+def dockerPush(img) {
+	stage('DockerBuild') {
+		docker.withRegistry('52.91.247.224:30080', 'docker-credentials') {			
+			echo "In DockerBuild: ${app_name} "
+			def img = docker.build("${app_name}:latest")
+		}
+	}
+}
 
 def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 	stage('DockerBuild') {
@@ -81,9 +83,9 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 				def builds = bc.startBuild("--from-dir .")
 
 				builds.logs('-f')
-				
+
 				echo("BUILD Finished")
-				
+
 				timeout(5) {
 					builds.untilEach(1) {
 						echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
@@ -116,15 +118,15 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 				}
 				def rm = dc.rollout()
 				rm.latest()
-				
+
 				timeout(5) {
 					def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
 					echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
 					def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
 					echo "Got RC" + rc
 					rc.untilEach(1){
-					    def rcMap = it.object()
-					    return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+						def rcMap = it.object()
+						return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
 					}
 				}
 			}

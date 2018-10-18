@@ -44,14 +44,14 @@ def call(body) {
 			utils.testJava(release_number)
 			utils.deployJava(release_number, "http://nexus-cicd.apps.52.91.247.224.xip.io")
 			stash name: 'artifacts'
-			//stash includes: '*', name: 'artifacts'
 			
 			//utils.dockerBuildOpenshift(pipelineParams.ocp_cluster, ocp_project, pipelineParams.app_name )
 			//utils.deployOpenshift(pipelineParams.ocp_cluster, ocp_project, pipelineParams.app_name )
 		}
 		node() {
 			unstash 'artifacts'
-			utils.dockerBuild(pipelineParams.app_name)
+			img = utils.dockerBuild(pipelineParams.app_name)
+			utils.dockerPush(img)
 		}
 	}
 }
