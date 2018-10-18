@@ -54,9 +54,9 @@ def dockerBuild(app_name) {
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
 		
-		sh "whoami"
+		sh "pwd"
 		
-		sh "docker ps"
+		sh "ls"
 		
 		def img = docker.build("${app_name}:latest")
 		
