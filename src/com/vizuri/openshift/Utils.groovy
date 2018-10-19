@@ -1,7 +1,7 @@
 package com.vizuri.openshift
 
 //def containerRegistry = "docker-registry.default.svc:5000"
-def containerRegistry = "http://52.91.247.224:30080"
+containerRegistry = "http://52.91.247.224:30080"
 
 def helloWorld() {
 	println("helloworkd");
