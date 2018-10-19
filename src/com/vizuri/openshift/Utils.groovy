@@ -1,7 +1,12 @@
 package com.vizuri.openshift
 
 //def containerRegistry = "docker-registry.default.svc:5000"
-containerRegistry = "http://52.91.247.224:30080"
+class Globals {
+	static String containerRegistry = "http://52.91.247.224:30080"
+	//def containerRegistry = "docker-registry.default.svc:5000"
+	
+}
+
 
 def helloWorld() {
 	println("helloworkd");
@@ -55,14 +60,14 @@ def dockerBuild(app_name) {
 
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
-		def img = docker.build(containerRegistry + "/vizuri/${app_name}:latest")
+		def img = docker.build(Globals.containerRegistry + "/vizuri/${app_name}:latest")
 		return img
 	}
 }
 
 def dockerPush(img) {
 	stage('DockerPush') {
-		docker.withRegistry(containerRegistry, "docker-credentials") {
+		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
 			echo "In DockerPush:"
 			img.push()
 			//docker.push(img)
