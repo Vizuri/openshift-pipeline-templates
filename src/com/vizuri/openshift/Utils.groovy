@@ -2,7 +2,8 @@ package com.vizuri.openshift
 
 //def containerRegistry = "docker-registry.default.svc:5000"
 class Globals {
-	static String containerRegistry = "http://52.91.247.224:30080"
+	static String imageBase = "52.91.247.224:30080"
+	static String containerRegistry = "http://${imageBase}"
 	//def containerRegistry = "docker-registry.default.svc:5000"
 	
 }
@@ -129,7 +130,7 @@ stage('Deploy') {
 			echo "DC Exists: " + dc.exists()
 			if(!dc.exists()) {
 				echo "DC Does Not Exist Creating"
-				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.containerRegistry}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}")
+				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}").narrow("dc")
 			}
 			def rm = dc.rollout()
 			rm.latest()
