@@ -63,8 +63,8 @@ def dockerBuild(app_name) {
 		echo "In DockerBuild: ${app_name} "
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
 			def img = docker.build("vizuri/${app_name}:latest")
+			return img
 		}
-		return img
 	}
 }
 
