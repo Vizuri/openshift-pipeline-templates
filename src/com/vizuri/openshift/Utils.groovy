@@ -63,7 +63,7 @@ def dockerBuild(app_name) {
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
-			def img = docker.build("vizuri/${app_name}:latest")
+			def img = docker.build("${Globals.imageNamespace}/${app_name}:latest")
 			return img
 		}
 	}
