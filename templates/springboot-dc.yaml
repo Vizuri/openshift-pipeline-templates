@@ -100,3 +100,6 @@ objects:
           terminationMessagePath: "/dev/termination-log"
           volumeMounts:
     triggers:
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: false 
