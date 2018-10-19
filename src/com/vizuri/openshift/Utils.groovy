@@ -55,14 +55,14 @@ def dockerBuild(app_name) {
 
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
-		def img = docker.build("${containerRegistry}/vizuri/${app_name}:latest")
+		def img = docker.build(containerRegistry + "/vizuri/${app_name}:latest")
 		return img
 	}
 }
 
 def dockerPush(img) {
 	stage('DockerPush') {
-		docker.withRegistry("${containerRegistry}", "docker-credentials") {
+		docker.withRegistry(containerRegistry, "docker-credentials") {
 			echo "In DockerPush:"
 			img.push()
 			//docker.push(img)
