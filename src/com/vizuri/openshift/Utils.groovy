@@ -1,5 +1,7 @@
 package com.vizuri.openshift
 
+#def containerRegistry = "docker-registry.default.svc:5000"
+def containerRegistry = "http://52.91.247.224:30080"
 
 def helloWorld() {
 	println("helloworkd");
@@ -53,15 +55,15 @@ def dockerBuild(app_name) {
 
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
-		def img = docker.build("52.91.247.224:30080/vizuri/${app_name}:latest")
+		def img = docker.build("${containerRegistry}/vizuri/${app_name}:latest")
 		return img
 	}
 }
 
 def dockerPush(img) {
 	stage('DockerPush') {
-		docker.withRegistry('http://52.91.247.224:30080', 'docker-credentials') {			
-			echo "In DockerPush:" 
+		docker.withRegistry("${containerRegistry}", "docker-credentials") {
+			echo "In DockerPush:"
 			img.push()
 			//docker.push(img)
 		}
@@ -69,76 +71,76 @@ def dockerPush(img) {
 }
 
 def scanImage(app_name) {
-	node {
-		def imageLine = "52.91.247.224:30080/vizuri/${app_name}:latest"
+	stage('ScanImage') {
+		def imageLine = "${containerRegistry}/vizuri/${app_name}:latest"
 		writeFile file: 'anchore_images', text: imageLine
 		anchore name: 'anchore_images'
-	  }
+	}
 }
 
 def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
-	stage('DockerBuild') {
-		echo "In DockerBuild: ${ocp_cluster} : ${ocp_project}"
-		openshift.withCluster( "${ocp_cluster}" ) {
-			openshift.withProject( "${ocp_project}" ) {
-				def bc = openshift.selector("bc", "${app_name}")
-				echo "BC: " + bc
-				echo "BC Exists: " + bc.exists()
-				if(!bc.exists()) {
-					echo "BC Does Not Exist Creating"
-					bc = openshift.newBuild("--binary=true --strategy=docker --name=${app_name}").narrow("bc")
-				}
-				//bc = bc.narrow("bc");
-				def builds = bc.startBuild("--from-dir .")
+stage('DockerBuild') {
+	echo "In DockerBuild: ${ocp_cluster} : ${ocp_project}"
+	openshift.withCluster( "${ocp_cluster}" ) {
+		openshift.withProject( "${ocp_project}" ) {
+			def bc = openshift.selector("bc", "${app_name}")
+			echo "BC: " + bc
+			echo "BC Exists: " + bc.exists()
+			if(!bc.exists()) {
+				echo "BC Does Not Exist Creating"
+				bc = openshift.newBuild("--binary=true --strategy=docker --name=${app_name}").narrow("bc")
+			}
+			//bc = bc.narrow("bc");
+			def builds = bc.startBuild("--from-dir .")
 
-				builds.logs('-f')
+			builds.logs('-f')
 
-				echo("BUILD Finished")
+			echo("BUILD Finished")
 
-				timeout(5) {
-					builds.untilEach(1) {
-						echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
-						if(it.object().status.phase == "Failed") {
-							currentBuild.result = 'FAILURE'
-							error("Docker Openshift Build Failed")
-						}
-						return (it.object().status.phase == "Complete")
+			timeout(5) {
+				builds.untilEach(1) {
+					echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
+					if(it.object().status.phase == "Failed") {
+						currentBuild.result = 'FAILURE'
+						error("Docker Openshift Build Failed")
 					}
+					return (it.object().status.phase == "Complete")
 				}
+			}
 
 
 
+		}
+	}
+}
+}
+
+def deployOpenshift(ocp_cluster, ocp_project, app_name) {
+stage('Deploy') {
+	openshift.withCluster( "${ocp_cluster}" ) {
+		openshift.withProject( "${ocp_project}" ) {
+			echo "In Deploy: ${openshift.project()} : ${ocp_project}"
+			def dc = openshift.selector("dc", "${app_name}")
+			echo "DC: " + dc
+			echo "DC Exists: " + dc.exists()
+			if(!dc.exists()) {
+				echo "DC Does Not Exist Creating"
+				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${containerRegistry}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}")
+			}
+			def rm = dc.rollout()
+			rm.latest()
+
+			timeout(5) {
+				def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
+				echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
+				def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
+				echo "Got RC" + rc
+				rc.untilEach(1){
+					def rcMap = it.object()
+					return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+				}
 			}
 		}
 	}
 }
-
-def deployOpenshift(ocp_cluster, ocp_project, app_name) {
-	stage('Deploy') {
-		openshift.withCluster( "${ocp_cluster}" ) {
-			openshift.withProject( "${ocp_project}" ) {
-				echo "In Deploy: ${openshift.project()} : ${ocp_project}"
-				def dc = openshift.selector("dc", "${app_name}")
-				echo "DC: " + dc
-				echo "DC Exists: " + dc.exists()
-				if(!dc.exists()) {
-					echo "DC Does Not Exist Creating"
-					dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=docker-registry.default.svc:5000/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}")
-				}
-				def rm = dc.rollout()
-				rm.latest()
-
-				timeout(5) {
-					def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
-					echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
-					def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
-					echo "Got RC" + rc
-					rc.untilEach(1){
-						def rcMap = it.object()
-						return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
-					}
-				}
-			}
-		}
-	}
 }
