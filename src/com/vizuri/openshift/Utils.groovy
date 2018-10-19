@@ -60,11 +60,8 @@ def dockerBuild(app_name) {
 
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
-		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
-			def img = docker.build("vizuri/${app_name}:latest")
-			return img
-		}
-		
+		def img = docker.build("vizuri/${app_name}:latest")
+		return img
 	}
 }
 
@@ -73,14 +70,13 @@ def dockerPush(img) {
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
 			echo "In DockerPush:"
 			img.push()
-			//docker.push(img)
 		}
 	}
 }
 
 def scanImage(app_name) {
 	stage('ScanImage') {
-		def imageLine = "${containerRegistry}/vizuri/${app_name}:latest"
+		def imageLine = "${Globals.containerRegistry}/vizuri/${app_name}:latest"
 		writeFile file: 'anchore_images', text: imageLine
 		anchore name: 'anchore_images'
 	}
@@ -125,15 +121,15 @@ stage('DockerBuild') {
 
 def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 stage('Deploy') {
+	echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
 	openshift.withCluster( "${ocp_cluster}" ) {
 		openshift.withProject( "${ocp_project}" ) {
-			echo "In Deploy: ${openshift.project()} : ${ocp_project}"
 			def dc = openshift.selector("dc", "${app_name}")
 			echo "DC: " + dc
 			echo "DC Exists: " + dc.exists()
 			if(!dc.exists()) {
 				echo "DC Does Not Exist Creating"
-				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${containerRegistry}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}")
+				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.containerRegistry}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}")
 			}
 			def rm = dc.rollout()
 			rm.latest()
