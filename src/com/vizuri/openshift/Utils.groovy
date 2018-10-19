@@ -3,7 +3,7 @@ package com.vizuri.openshift
 //def containerRegistry = "docker-registry.default.svc:5000"
 class Globals {
 	static String imageBase = "52.91.247.224:30080"
-	static String containerRegistry = "http://" + imageBase
+	static String containerRegistry = "http://${Globals.imageBase}"
 	//def containerRegistry = "docker-registry.default.svc:5000"
 	
 }
