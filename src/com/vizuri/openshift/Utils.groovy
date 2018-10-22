@@ -59,7 +59,6 @@ def deployJava(release_number, nexus_url) {
 	}
 }
 def dockerBuild(app_name) {
-
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
