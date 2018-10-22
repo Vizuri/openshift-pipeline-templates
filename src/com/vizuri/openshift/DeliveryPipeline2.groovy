@@ -66,6 +66,7 @@ def call(body) {
 		
 		if(develop) {
 			node {
+				deleteDir()
 				unstash 'artifacts'
 				img = utils.dockerBuild(pipelineParams.app_name, release_number)
 				utils.dockerPush(img)
@@ -86,10 +87,6 @@ def call(body) {
 		}
 		
 	}
-	post {
-		always {
-			deleteDir() /* clean up our workspace */
-		}
-	}
+
 
 }
