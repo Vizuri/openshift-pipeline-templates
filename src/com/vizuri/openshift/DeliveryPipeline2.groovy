@@ -57,8 +57,10 @@ def call(body) {
 		}
 		
 		if(develop || release) {
-			unstash 'artifacts'
-			utils.deployJava(release_number, "http://nexus-cicd.apps.52.91.247.224.xip.io")		
+			node ('maven') {
+				unstash 'artifacts'
+				utils.deployJava(release_number, "http://nexus-cicd.apps.52.91.247.224.xip.io")		
+			}
 		}
 		
 		
