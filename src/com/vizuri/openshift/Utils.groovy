@@ -121,8 +121,8 @@ stage('DockerBuild') {
 	}
 }
 }
-
-def deployOpenshift(ocp_cluster, ocp_project, app_name) {
+//oc patch dc/ldap-demo -p '[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "52.91.247.224:30080/vizuri/ldap-demo:1.0-SNAPSHOT" }]' --type=json
+def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
 stage('Deploy') {
 	echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
 	openshift.withCluster( "${ocp_cluster}" ) {
@@ -133,7 +133,7 @@ stage('Deploy') {
 			if(!dc.exists()) {
 				echo "DC Does Not Exist Creating"
 				//dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}").narrow("dc")
-				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:latest -p APP_NAME=${app_name}").narrow("dc")
+				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} -p APP_NAME=${app_name}").narrow("dc")
 			}
 			else {
 				def rm = dc.rollout()

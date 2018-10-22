@@ -86,4 +86,10 @@ def call(body) {
 		}
 		
 	}
+	post {
+		always {
+			deleteDir() /* clean up our workspace */
+		}
+	}
+
 }
