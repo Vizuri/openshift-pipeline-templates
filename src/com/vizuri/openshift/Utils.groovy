@@ -30,8 +30,8 @@ def testJava(release_number) {
 	echo "In testJava: ${release_number}"
 	stage ('test') {
 		parallel (
-				"unit tests": { sh 'mvn -s configuration/settings.xml -Dbuild.number=${release_number} test' },
-				"integration tests": { sh 'mvn -s configuration/settings.xml -Dbuild.number=${release_number} integration-test' }
+				"unit tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${release_number} test" },
+				"integration tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${release_number} integration-test" }
 				)
 		junit 'target/surefire-reports/*.xml'
 
