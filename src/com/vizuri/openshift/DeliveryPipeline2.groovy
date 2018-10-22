@@ -77,7 +77,7 @@ def call(body) {
 		if(release) {
 			node {			
 				img = utils.dockerBuild(pipelineParams.app_name, release_number)
-				utils.dockerPush(img, release_number)
+				utils.dockerPush(img)
 				stage('Confirm Deploy?') {
 					milestone 1
 					input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
