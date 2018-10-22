@@ -135,8 +135,10 @@ stage('Deploy') {
 				//dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}").narrow("dc")
 				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:latest -p APP_NAME=${app_name}").narrow("dc")
 			}
-			def rm = dc.rollout()
-			rm.latest()
+			else {
+				def rm = dc.rollout()
+				rm.latest()
+			}
 
 			timeout(5) {
 				def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
