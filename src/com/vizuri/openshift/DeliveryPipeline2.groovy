@@ -48,7 +48,7 @@ def call(body) {
 			ocp_project = pipelineParams.ocp_dev_project
 		}
 
-		if(feature || develop) {
+		if(feature || develop || release) {
 			node('maven') {
 				utils.buildJava(release_number)
 				utils.testJava(release_number)
@@ -64,7 +64,7 @@ def call(body) {
 		}
 		
 		
-		if(develop) {
+		if(develop || release) {
 			node {
 				unstash 'artifacts'
 				img = utils.dockerBuild(pipelineParams.app_name)
