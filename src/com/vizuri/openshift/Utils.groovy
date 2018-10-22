@@ -136,6 +136,10 @@ stage('Deploy') {
 				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} -p APP_NAME=${app_name}").narrow("dc")
 			}
 			else {
+				def dcObject = dc.object()
+				dcObject.spec.template.spec.containers.0/image = "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
+				openshift.apply(dcObject)
+				
 				def rm = dc.rollout()
 				rm.latest()
 			}
