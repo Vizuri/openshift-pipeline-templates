@@ -58,11 +58,11 @@ def deployJava(release_number, nexus_url) {
 		}
 	}
 }
-def dockerBuild(app_name) {
+def dockerBuild(app_name, tag) {
 	stage('DockerBuild') {
 		echo "In DockerBuild: ${app_name} "
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
-			def img = docker.build("${Globals.imageNamespace}/${app_name}:latest")
+			def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}")
 			return img
 		}
 	}

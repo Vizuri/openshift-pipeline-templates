@@ -64,17 +64,19 @@ def call(body) {
 		}
 		
 		
-		if(develop || release) {
+		if(develop) {
 			node {
 				unstash 'artifacts'
-				img = utils.dockerBuild(pipelineParams.app_name)
+				img = utils.dockerBuild(pipelineParams.app_name, release_number)
 				utils.dockerPush(img)
 				//utils.scanImage(pipelineParams.app_name )
-				utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name )
+				utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, release_number )
 			}
 		}
 		if(release) {
 			node {			
+				img = utils.dockerBuild(pipelineParams.app_name, release_number)
+				utils.dockerPush(img, release_number)
 				stage('Confirm Deploy?') {
 					milestone 1
 					input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
