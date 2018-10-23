@@ -76,6 +76,8 @@ def call(body) {
 		}
 		if(release) {
 			node {			
+				deleteDir()
+				unstash 'artifacts'
 				img = utils.dockerBuild(pipelineParams.app_name, release_number)
 				utils.dockerPush(img)
 				stage('Confirm Deploy?') {
