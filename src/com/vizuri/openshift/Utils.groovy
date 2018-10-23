@@ -161,16 +161,16 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
 def getSlackToken(channel) {
 	def token;
 	if(channel.equals("cicd-feature")) {
-		token = PsY21OKCkPM5ED01xurKwQkq;
+		token = "PsY21OKCkPM5ED01xurKwQkq";
 	} 
 	else if (channel.equals("cicd-develop")) {
-		token = PsY21OKCkPM5ED01xurKwQkq;
+		token = "PsY21OKCkPM5ED01xurKwQkq";
 	} 
 	else if (channel.equals("cicd-test")) {
-		token = dMQ7l26s3pb4qa4AijxanODC;
+		token = "dMQ7l26s3pb4qa4AijxanODC";
 	}	
 	else if (channel.equals("cicd-prod")) {
-		token = HW5G7kmVdRU6XyDJrcKvdyQA;
+		token = "HW5G7kmVdRU6XyDJrcKvdyQA";
 	}
 	return token;
 }
