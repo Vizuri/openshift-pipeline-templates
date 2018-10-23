@@ -26,16 +26,19 @@ def call(body) {
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
 
 		if(BRANCH_NAME.startsWith("feature")) {
+			slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 			feature = true;
 		}
 		else if(BRANCH_NAME.startsWith("develop")) {
+			slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Develop Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 			develop = true;
 		}
 		else if(BRANCH_NAME.startsWith("release")) {
+			slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Relase Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 			release = true;
 		}
 
-		if(BRANCH_NAME.startsWith("release")) {
+		if(release) {
 			def tokens = BRANCH_NAME.tokenize( '/' )
 			branch_name = tokens[0]
 			branch_release_number = tokens[1]
