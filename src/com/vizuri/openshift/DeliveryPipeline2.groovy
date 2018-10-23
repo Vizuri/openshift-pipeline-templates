@@ -30,17 +30,14 @@ def call(body) {
 
 			if(BRANCH_NAME.startsWith("feature")) {
 				utils.notifyBuild()
-				//slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 				feature = true;
 			}
 			else if(BRANCH_NAME.startsWith("develop")) {
 				utils.notifyBuild()
-				//slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Develop Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 				develop = true;
 			}
 			else if(BRANCH_NAME.startsWith("release")) {
 				utils.notifyBuild()
-				//slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Relase Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 				release = true;
 			}
 
@@ -89,7 +86,7 @@ def call(body) {
 					img = utils.dockerBuild(pipelineParams.app_name, release_number)
 					utils.dockerPush(img)
 					stage('Confirm Deploy?') {
-						slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}"
+						utils.notify("cicd-test", "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}")
 						milestone 1
 						input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
 					}

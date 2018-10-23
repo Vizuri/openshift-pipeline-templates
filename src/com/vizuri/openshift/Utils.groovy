@@ -157,6 +157,29 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
 		}
 	}
 }
+
+def getSlackToken(channel) {
+	def token;
+	if(channel.equals("cicd-feature")) {
+		token = PsY21OKCkPM5ED01xurKwQkq;
+	} 
+	else if (channel.equals("cicd-develop")) {
+		token = PsY21OKCkPM5ED01xurKwQkq;
+	} 
+	else if (channel.equals("cicd-test")) {
+		token = dMQ7l26s3pb4qa4AijxanODC;
+	}	
+	else if (channel.equals("cicd-prod")) {
+		token = HW5G7kmVdRU6XyDJrcKvdyQA;
+	}
+	return token;
+}
+
+def notify(channel, message) {
+	def token = getSlackToken(channel);
+	slackSend color: "good", channel: 'cicd-test', token: token, message: message
+}
+
 def notifyBuild(String buildStatus = 'STARTED') {
 	// build status of null means successful
 	buildStatus =  buildStatus ?: 'SUCCESSFUL'
@@ -165,46 +188,32 @@ def notifyBuild(String buildStatus = 'STARTED') {
 	
 	def buildType;
 	def channel;
-	def token;
+	def token = getSlackToken(channel);
 	
 	if(BRANCH_NAME.startsWith("feature")) {
 		buildType = "Feature"
 		channel = "cicd-develop"
-		token = "PsY21OKCkPM5ED01xurKwQkq"
+		//token = "PsY21OKCkPM5ED01xurKwQkq"
 	}
 	else if(BRANCH_NAME.startsWith("develop")) {
 		buildType = "Develop"
 		channel = "cicd-develop"
-		token = "PsY21OKCkPM5ED01xurKwQkq"
+		//token = "dMQ7l26s3pb4qa4AijxanODC"
 	}
 	else if(BRANCH_NAME.startsWith("release")) {
 		buildType = "Release"
 		channel = "cicd-test"
-		token = "PsY21OKCkPM5ED01xurKwQkq"
-
+		//token = "PsY21OKCkPM5ED01xurKwQkq"
 	}
 
 	// Override default values based on build status
 	if (buildStatus == 'STARTED') {
-		slackSend color: "good", channel: channel, token: token, message: "${buildType} Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
-	} else if (buildStatus == 'SUCCESSFUL') {
-		slackSend color: "good", channel: channel, token: token, message: "${buildType} Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} completed successfully"
+		slackSend color: "good", channel: channel, token: token, message: "${buildType} Job: ${BRANCH_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
+	} else if (buildStatus == 'SUCCESS') {
+		slackSend color: "good", channel: channel, token: token, message: "${buildType} Job: ${BRANCH_NAME} with buildnumber ${env.BUILD_NUMBER} completed successfully"
 	} else {
-		slackSend color: "danger", channel: channel, token: token, message: "${buildType} Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} failed"
+		slackSend color: "danger", channel: channel, token: token, message: "${buildType} Job: ${BRANCH_NAME} with buildnumber ${env.BUILD_NUMBER} failed"
 	}
 
 }
-def call(String buildResult) {
-	if ( buildResult == "SUCCESS" ) {
-		slackSend color: "good", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was successful"
-	}
-	else if( buildResult == "FAILURE" ) {
-		slackSend color: "danger", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was failed"
-	}
-	else if( buildResult == "UNSTABLE" ) {
-		slackSend color: "warning", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was unstable"
-	}
-	else {
-		slackSend color: "danger", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} its resulat was unclear"
-	}
-}
+
