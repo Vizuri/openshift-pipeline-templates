@@ -87,7 +87,6 @@ def call(body) {
 					utils.dockerPush(img)
 					stage('Confirm Deploy?') {
 						utils.notify("cicd-test", "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}")
-						milestone 1
 						input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
 					}
 					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, release_number  )
