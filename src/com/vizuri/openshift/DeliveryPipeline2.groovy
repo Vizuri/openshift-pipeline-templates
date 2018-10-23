@@ -86,7 +86,8 @@ def call(body) {
 					img = utils.dockerBuild(pipelineParams.app_name, release_number)
 					utils.dockerPush(img)
 					stage('Confirm Deploy?') {
-						slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Release ${release_number} of ${pipelineParams.app_name} is ready to move to test. Approve release here ${BUILD_URL}"
+						slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}"
+						milestone 1
 						input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
 					}
 					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, release_number  )

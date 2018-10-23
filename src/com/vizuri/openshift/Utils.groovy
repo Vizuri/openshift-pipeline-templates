@@ -160,19 +160,34 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
 def notifyBuild(String buildStatus = 'STARTED') {
 	// build status of null means successful
 	buildStatus =  buildStatus ?: 'SUCCESSFUL'
+	def buildType;
+	def channel;
+	def token;
+	
+	if(BRANCH_NAME.startsWith("feature")) {
+		buildType = "Feature"
+		channel = "cicd-develop"
+		token = "PsY21OKCkPM5ED01xurKwQkq"
+	}
+	else if(BRANCH_NAME.startsWith("develop")) {
+		buildType = "Develop"
+		channel = "cicd-develop"
+		token = "PsY21OKCkPM5ED01xurKwQkq"
+	}
+	else if(BRANCH_NAME.startsWith("release")) {
+		buildType = "Release"
+		channel = "cicd-test"
+		token = "PsY21OKCkPM5ED01xurKwQkq"
 
-	// Default values
-	def colorName = 'RED'
-	def colorCode = '#FF0000'
-	def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
-	def summary = "${subject} (${env.BUILD_URL})"
+	}
+
 	// Override default values based on build status
 	if (buildStatus == 'STARTED') {
-		slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
+		slackSend color: "good", channel: channel, token: token, message: "${buildType} Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 	} else if (buildStatus == 'SUCCESSFUL') {
-		slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} fininished successfully"
+		slackSend color: "good", channel: channel, token: token, message: "${buildType} Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} completed successfully"
 	} else {
-		slackSend color: "danger", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} failed"
+		slackSend color: "danger", channel: channel, token: token, message: "${buildType} Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} failed"
 	}
 
 }
