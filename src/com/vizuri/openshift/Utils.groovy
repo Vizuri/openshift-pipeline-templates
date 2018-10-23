@@ -157,7 +157,25 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
 		}
 	}
 }
+def notifyBuild(String buildStatus = 'STARTED') {
+	// build status of null means successful
+	buildStatus =  buildStatus ?: 'SUCCESSFUL'
 
+	// Default values
+	def colorName = 'RED'
+	def colorCode = '#FF0000'
+	def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+	def summary = "${subject} (${env.BUILD_URL})"
+	// Override default values based on build status
+	if (buildStatus == 'STARTED') {
+		slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
+	} else if (buildStatus == 'SUCCESSFUL') {
+		slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} fininished successfully"
+	} else {
+		slackSend color: "danger", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} failed"
+	}
+
+}
 def call(String buildResult) {
 	if ( buildResult == "SUCCESS" ) {
 		slackSend color: "good", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was successful"

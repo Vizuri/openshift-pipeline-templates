@@ -10,91 +10,95 @@ def call(body) {
 	body()
 
 	pipeline {
-		println ">>>> Starting DeliveryPipeline";
+		try {
+			println ">>>> Starting DeliveryPipeline";
 
-		println ">>>>>  Build Number ${BUILD_NUMBER}";
-		println ">>>>>  JENKINS_URL ${JENKINS_URL}";
-		println ">>>>>  BUILD_URL ${BUILD_URL}";
-		println ">>>>>  JOB_URL ${JOB_URL}";
-		
+			println ">>>>>  Build Number ${BUILD_NUMBER}";
+			println ">>>>>  JENKINS_URL ${JENKINS_URL}";
+			println ">>>>>  BUILD_URL ${BUILD_URL}";
+			println ">>>>>  JOB_URL ${JOB_URL}";
 
-		def release_number;
-		
-		def feature = false;
-		def develop = false;
-		def release = false;
-		
 
-		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
+			def release_number;
 
-		if(BRANCH_NAME.startsWith("feature")) {
-			slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
-			feature = true;
-		}
-		else if(BRANCH_NAME.startsWith("develop")) {
-			slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Develop Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
-			develop = true;
-		}
-		else if(BRANCH_NAME.startsWith("release")) {
-			slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Relase Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
-			release = true;
-		}
+			def feature = false;
+			def develop = false;
+			def release = false;
 
-		if(release) {
-			def tokens = BRANCH_NAME.tokenize( '/' )
-			branch_name = tokens[0]
-			branch_release_number = tokens[1]
 
-			release_number = branch_release_number
+			echo ">>>>>>  Branch Name: " + BRANCH_NAME;
 
-		}
-		else {
-			release_number = pipelineParams.snapshot_release_number
-			ocp_project = pipelineParams.ocp_dev_project
-		}
-
-		if(feature || develop || release) {
-			node('maven') {
-				utils.buildJava(release_number)
-				utils.testJava(release_number)
-				stash name: 'artifacts'
+			if(BRANCH_NAME.startsWith("feature")) {
+				slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Feature Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
+				feature = true;
 			}
-		}
-		
-		if(develop || release) {
-			node ('maven') {
-				unstash 'artifacts'
-				utils.deployJava(release_number, "http://nexus-cicd.apps.52.91.247.224.xip.io")		
+			else if(BRANCH_NAME.startsWith("develop")) {
+				slackSend color: "good", channel: 'cicd-develop', token: 'PsY21OKCkPM5ED01xurKwQkq', message: "Develop Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
+				develop = true;
 			}
-		}
-		
-		
-		if(develop) {
-			node {
-				deleteDir()
-				unstash 'artifacts'
-				img = utils.dockerBuild(pipelineParams.app_name, release_number)
-				utils.dockerPush(img)
-				//utils.scanImage(pipelineParams.app_name )
-				utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, release_number )
+			else if(BRANCH_NAME.startsWith("release")) {
+				slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Relase Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
+				release = true;
 			}
-		}
-		if(release) {
-			node {			
-				deleteDir()
-				unstash 'artifacts'
-				img = utils.dockerBuild(pipelineParams.app_name, release_number)
-				utils.dockerPush(img)
-				stage('Confirm Deploy?') {
-					slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Release ${release_number} of ${pipelineParams.app_name} is ready to move to test. Approve -> ${env.${BUILD_URL}}"
-//					milestone 1
-					input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
+
+			if(release) {
+				def tokens = BRANCH_NAME.tokenize( '/' )
+				branch_name = tokens[0]
+				branch_release_number = tokens[1]
+
+				release_number = branch_release_number
+			}
+			else {
+				release_number = pipelineParams.snapshot_release_number
+				ocp_project = pipelineParams.ocp_dev_project
+			}
+
+			if(feature || develop || release) {
+				node('maven') {
+					utils.buildJava(release_number)
+					utils.testJava(release_number)
+					stash name: 'artifacts'
 				}
-				utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, release_number  )
 			}
+
+			if(develop || release) {
+				node ('maven') {
+					unstash 'artifacts'
+					utils.deployJava(release_number, "http://nexus-cicd.apps.52.91.247.224.xip.io")
+				}
+			}
+
+
+			if(develop) {
+				node {
+					deleteDir()
+					unstash 'artifacts'
+					img = utils.dockerBuild(pipelineParams.app_name, release_number)
+					utils.dockerPush(img)
+					//utils.scanImage(pipelineParams.app_name )
+					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, release_number )
+				}
+			}
+			if(release) {
+				node {
+					deleteDir()
+					unstash 'artifacts'
+					img = utils.dockerBuild(pipelineParams.app_name, release_number)
+					utils.dockerPush(img)
+					stage('Confirm Deploy?') {
+						slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Release ${release_number} of ${pipelineParams.app_name} is ready to move to test. Approve release here ${BUILD_URL}"
+						input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
+					}
+					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, release_number  )
+				}
+			}
+		} catch (e) {
+			// If there was an exception thrown, the build failed
+			currentBuild.result = "FAILED"
+			throw e
+		} finally {
+			// Success or failure, always send notifications
+			utils.notifyBuild(currentBuild.result)
 		}
-		
 	}
-
-
 }
