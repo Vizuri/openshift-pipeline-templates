@@ -139,11 +139,10 @@ stage('Deploy') {
 				def dcObject = dc.object()
 				dcObject.spec.template.spec.containers[0].image = "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
 				openshift.apply(dcObject)
-				
-				def rm = dc.rollout()
-				rm.latest()
 			}
-
+			
+			def rm = dc.rollout()
+			rm.latest()
 			timeout(5) {
 				def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
 				echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
