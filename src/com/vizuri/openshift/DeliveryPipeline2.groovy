@@ -13,8 +13,10 @@ def call(body) {
 		println ">>>> Starting DeliveryPipeline";
 
 		println ">>>>>  Build Number ${BUILD_NUMBER}";
-
-		def image_tag="v1.${BUILD_NUMBER}";
+		println ">>>>>  JENKINS_URL ${JENKINS_URL}";
+		println ">>>>>  BUILD_URL ${BUILD_URL}";
+		println ">>>>>  JOB_URL ${JOB_URL}";
+		
 
 		def release_number;
 		
@@ -85,6 +87,7 @@ def call(body) {
 				utils.dockerPush(img)
 				stage('Confirm Deploy?') {
 					milestone 1
+					slackSend color: "good", channel: 'cicd-test', token: 'dMQ7l26s3pb4qa4AijxanODC', message: "Relase Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 					input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
 				}
 				utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, release_number  )

@@ -6,7 +6,7 @@ class Globals {
 	static String imageNamespace = "vizuri"
 	static String containerRegistry = "http://52.91.247.224:30080"
 	//def containerRegistry = "docker-registry.default.svc:5000"
-	
+
 }
 
 
@@ -86,74 +86,89 @@ def scanImage(app_name) {
 }
 
 def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
-stage('DockerBuild') {
-	echo "In DockerBuild: ${ocp_cluster} : ${ocp_project}"
-	openshift.withCluster( "${ocp_cluster}" ) {
-		openshift.withProject( "${ocp_project}" ) {
-			def bc = openshift.selector("bc", "${app_name}")
-			echo "BC: " + bc
-			echo "BC Exists: " + bc.exists()
-			if(!bc.exists()) {
-				echo "BC Does Not Exist Creating"
-				bc = openshift.newBuild("--binary=true --strategy=docker --name=${app_name}").narrow("bc")
-			}
-			//bc = bc.narrow("bc");
-			def builds = bc.startBuild("--from-dir .")
+	stage('DockerBuild') {
+		echo "In DockerBuild: ${ocp_cluster} : ${ocp_project}"
+		openshift.withCluster( "${ocp_cluster}" ) {
+			openshift.withProject( "${ocp_project}" ) {
+				def bc = openshift.selector("bc", "${app_name}")
+				echo "BC: " + bc
+				echo "BC Exists: " + bc.exists()
+				if(!bc.exists()) {
+					echo "BC Does Not Exist Creating"
+					bc = openshift.newBuild("--binary=true --strategy=docker --name=${app_name}").narrow("bc")
+				}
+				//bc = bc.narrow("bc");
+				def builds = bc.startBuild("--from-dir .")
 
-			builds.logs('-f')
+				builds.logs('-f')
 
-			echo("BUILD Finished")
+				echo("BUILD Finished")
 
-			timeout(5) {
-				builds.untilEach(1) {
-					echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
-					if(it.object().status.phase == "Failed") {
-						currentBuild.result = 'FAILURE'
-						error("Docker Openshift Build Failed")
+				timeout(5) {
+					builds.untilEach(1) {
+						echo "In Look for bc status:" + it.count() + ":" + it.object().status.phase
+						if(it.object().status.phase == "Failed") {
+							currentBuild.result = 'FAILURE'
+							error("Docker Openshift Build Failed")
+						}
+						return (it.object().status.phase == "Complete")
 					}
-					return (it.object().status.phase == "Complete")
 				}
+
+
+
 			}
-
-
-
 		}
 	}
 }
-}
-//oc patch dc/ldap-demo -p '[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "52.91.247.224:30080/vizuri/ldap-demo:1.0-SNAPSHOT" }]' --type=json
+
 def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
-stage('Deploy') {
-	echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
-	openshift.withCluster( "${ocp_cluster}" ) {
-		openshift.withProject( "${ocp_project}" ) {
-			def dc = openshift.selector("dc", "${app_name}")
-			echo "DC: " + dc
-			echo "DC Exists: " + dc.exists()
-			if(!dc.exists()) {
-				echo "DC Does Not Exist Creating"
-				//dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}").narrow("dc")
-				dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} -p APP_NAME=${app_name}").narrow("dc")
-			}
-			else {
-				def dcObject = dc.object()
-				dcObject.spec.template.spec.containers[0].image = "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
-				openshift.apply(dcObject)
-			}
-			
-			def rm = dc.rollout()
-			rm.latest()
-			timeout(5) {
-				def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
-				echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
-				def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
-				echo "Got RC" + rc
-				rc.untilEach(1){
-					def rcMap = it.object()
-					return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+	stage('Deploy') {
+		echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
+		openshift.withCluster( "${ocp_cluster}" ) {
+			openshift.withProject( "${ocp_project}" ) {
+				def dc = openshift.selector("dc", "${app_name}")
+				echo "DC: " + dc
+				echo "DC Exists: " + dc.exists()
+				if(!dc.exists()) {
+					echo "DC Does Not Exist Creating"
+					//dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${ocp_project}/${app_name}:latest -p APP_NAME=${app_name}").narrow("dc")
+					dc = openshift.newApp("-f https://raw.githubusercontent.com/Vizuri/openshift-pipeline-templates/master/templates/springboot-dc.yaml -p IMAGE_NAME=${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} -p APP_NAME=${app_name}").narrow("dc")
+				}
+				else {
+					def dcObject = dc.object()
+					dcObject.spec.template.spec.containers[0].image = "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
+					openshift.apply(dcObject)
+				}
+
+				def rm = dc.rollout()
+				rm.latest()
+				timeout(5) {
+					def latestDeploymentVersion = openshift.selector('dc',"${app_name}").object().status.latestVersion
+					echo "Got LatestDeploymentVersion:" + latestDeploymentVersion
+					def rc = openshift.selector('rc', "${app_name}-${latestDeploymentVersion}")
+					echo "Got RC" + rc
+					rc.untilEach(1){
+						def rcMap = it.object()
+						return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+					}
 				}
 			}
 		}
 	}
 }
+
+def call(String buildResult) {
+	if ( buildResult == "SUCCESS" ) {
+		slackSend color: "good", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was successful"
+	}
+	else if( buildResult == "FAILURE" ) {
+		slackSend color: "danger", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was failed"
+	}
+	else if( buildResult == "UNSTABLE" ) {
+		slackSend color: "warning", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} was unstable"
+	}
+	else {
+		slackSend color: "danger", message: "Job: ${env.JOB_NAME} with buildnumber ${env.BUILD_NUMBER} its resulat was unclear"
+	}
 }
