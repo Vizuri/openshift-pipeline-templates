@@ -160,6 +160,9 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
 def notifyBuild(String buildStatus = 'STARTED') {
 	// build status of null means successful
 	buildStatus =  buildStatus ?: 'SUCCESSFUL'
+	
+	echo "In notifyBuild ${buildStatus} : ${BRANCH_NAME}"
+	
 	def buildType;
 	def channel;
 	def token;
