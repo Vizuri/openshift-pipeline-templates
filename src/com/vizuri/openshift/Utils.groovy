@@ -2,9 +2,9 @@ package com.vizuri.openshift
 
 //def containerRegistry = "docker-registry.default.svc:5000"
 class Globals {
-	static String imageBase = "52.91.247.224:30080"
+	static String imageBase = "ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com"
 	static String imageNamespace = "vizuri"
-	static String containerRegistry = "http://52.91.247.224:30080"
+	static String containerRegistry = "ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com"
 	//def containerRegistry = "docker-registry.default.svc:5000"
 
 }
