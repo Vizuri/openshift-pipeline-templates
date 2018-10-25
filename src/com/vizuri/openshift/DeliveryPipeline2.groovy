@@ -84,8 +84,8 @@ def call(body) {
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name, release_number)
 					utils.dockerPush(img)
-					utils.scanImage(pipelineParams.app_name, release_number )	
-					utils.confirmDeploy()			
+					//utils.scanImage(pipelineParams.app_name, release_number )	
+					utils.confirmDeploy(release_number)			
 //					stage('Confirm Deploy to Test?') {
 //						utils.notify("cicd-test", "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}")
 //						input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
