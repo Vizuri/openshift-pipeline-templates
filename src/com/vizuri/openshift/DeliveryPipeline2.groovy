@@ -74,6 +74,15 @@ def call(body) {
 					deleteDir()
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name, release_number)
+					stage('analyze') {
+						steps {
+							sh 'echo "ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com/vizuri/{pipelineParams.app_name}:${release_number} `pwd`/Dockerfile" > anchore_images'
+							sh 'cat anchore_image'
+							anchore name: 'anchore_images'
+						}
+					}
+					
+					
 					utils.dockerPush(img)
 					//utils.scanImage(pipelineParams.app_name )
 					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, release_number )
