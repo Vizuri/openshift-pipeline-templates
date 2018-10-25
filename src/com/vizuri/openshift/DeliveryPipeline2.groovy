@@ -79,7 +79,8 @@ def call(body) {
 						
 						//sh "echo 'ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com/vizuri/${pipelineParams.app_name}:${release_number}' > anchore_images"
 						//sh "echo 'ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com/vizuri/${pipelineParams.app_name}:${release_number} `pwd`/Dockerfile' > anchore_images"
-						sh 'cat anchore_image'
+						sh "ls"
+						sh 'cat anchore_images'
 						anchore name: 'anchore_images'
 					}
 					
