@@ -73,20 +73,8 @@ def call(body) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
-					img = utils.dockerBuild(pipelineParams.app_name, release_number)
-					stage('analyze') {
-						writeFile file: 'anchore_images', text: "ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com/vizuri/${pipelineParams.app_name}:${release_number} Dockerfile"
-						
-						//sh "echo 'ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com/vizuri/${pipelineParams.app_name}:${release_number}' > anchore_images"
-						//sh "echo 'ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com/vizuri/${pipelineParams.app_name}:${release_number} Dockerfile' > anchore_images"
-						sh "ls"
-						sh 'cat anchore_images'
-						anchore name: 'anchore_images'
-					}
-					
-					
+					img = utils.dockerBuild(pipelineParams.app_name, release_number)					
 					utils.dockerPush(img)
-					//utils.scanImage(pipelineParams.app_name )
 					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, release_number )
 				}
 			}
@@ -95,6 +83,7 @@ def call(body) {
 					deleteDir()
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name, release_number)
+					utils.scanImage(pipelineParams.app_name, release_number )				
 					utils.dockerPush(img)
 					stage('Confirm Deploy?') {
 						utils.notify("cicd-test", "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}")

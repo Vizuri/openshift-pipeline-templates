@@ -28,7 +28,7 @@ def buildJava(release_number) {
 }
 def testJava(release_number) {
 	echo "In testJava: ${release_number}"
-	stage ('test') {
+	stage ('Unit Test') {
 		parallel (
 				"unit tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${release_number} test" },
 				"integration tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${release_number} integration-test" }
@@ -48,7 +48,7 @@ def testJava(release_number) {
 def deployJava(release_number, nexus_url) {
 	echo "In deployJava: ${release_number}"
 
-	stage('Deploy Java') {
+	stage('Deploy Build Artifact') {
 		echo "In Deploy"
 		if(nexus_url != null) {
 			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexus_url} deploy"
@@ -59,7 +59,7 @@ def deployJava(release_number, nexus_url) {
 	}
 }
 def dockerBuild(app_name, tag) {
-	stage('DockerBuild') {
+	stage('Container Build') {
 		echo "In DockerBuild: ${app_name} "
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
 			def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}")
@@ -67,9 +67,16 @@ def dockerBuild(app_name, tag) {
 		}
 	}
 }
+def scanImage(app_name, tag) {
+	stage('Container Scan') {
+		writeFile file: 'anchore_images', text: "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} Dockerfile"
+		sh 'cat anchore_images'
+		anchore name: 'anchore_images'
+	}
+}
 
 def dockerPush(img) {
-	stage('DockerPush') {
+	stage('Container Push') {
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
 			echo "In DockerPush:"
 			img.push()
@@ -77,16 +84,8 @@ def dockerPush(img) {
 	}
 }
 
-def scanImage(app_name) {
-	stage('ScanImage') {
-		def imageLine = "${Globals.containerRegistry}/vizuri/${app_name}:latest"
-		writeFile file: 'anchore_images', text: imageLine
-		anchore name: 'anchore_images'
-	}
-}
-
 def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
-	stage('DockerBuild') {
+	stage('Container Build') {
 		echo "In DockerBuild: ${ocp_cluster} : ${ocp_project}"
 		openshift.withCluster( "${ocp_cluster}" ) {
 			openshift.withProject( "${ocp_project}" ) {
