@@ -120,10 +120,10 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 		}
 	}
 }
-def confirmDeploy(release_number) {
-	stage('Confirm Deploy to Test?') {
-		notify("cicd-test", "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}")
-		input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
+def confirmDeploy(app_name, release_number, env) {
+	stage('Confirm Deploy to ${env}?') {
+		notify("cicd-test", "Release ${release_number} of ${app_name} is ready for test test. Promote release here ${JOB_URL}")
+		input message: "Do you want to deploy ${app_name} release ${release_number} to ${env}?", submitter: "keudy"
 	}
 }
 
