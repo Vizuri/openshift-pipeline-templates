@@ -1,4 +1,11 @@
 package com.vizuri.openshift
+import hudson.EnvVars;
+import hudson.slaves.EnvironmentVariablesNodeProperty;
+import hudson.slaves.NodeProperty;
+import hudson.slaves.NodePropertyDescriptor;
+import hudson.util.DescribableList;
+import jenkins.model.Jenkins;
+
 
 //def containerRegistry = "docker-registry.default.svc:5000"
 class Globals {
@@ -15,9 +22,9 @@ def init(projectFolder = "./") {
 		def feature = false;
 		def develop = false;
 		def release = false;
-	
+
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
-	
+
 		if(BRANCH_NAME.startsWith("feature")) {
 			notifyBuild()
 			feature = true;
@@ -30,27 +37,48 @@ def init(projectFolder = "./") {
 			notifyBuild()
 			release = true;
 		}
-	    echo ">> Setting Release Number"
+		echo ">> Setting Release Number"
 		if(release) {
 			def tokens = BRANCH_NAME.tokenize( '/' )
 			branch_name = tokens[0]
 			branch_release_number = tokens[1]
-	
+
 			release_number = branch_release_number
 		}
 		else {
-			def pom = readMavenPom file: "${projectFolder}/pom.xml"		
+			def pom = readMavenPom file: "${projectFolder}/pom.xml"
 			release_number = pom.version
 		}
-	    echo ">>> Setting Environment"
+		echo ">>> Setting Environment"
 		environment {
-			FEATURE = feature;
-			DEVELOP = develop;
-			RELEASE = release;
-			RELEASE_NUMBER = release_number;
+			setEnVar(FEATURE,feature);
+			setEnVar(DEVELOP,develop);
+			setEnVar(RELEASE,release);
+			setEnVar(RELEASE_NUMBER,release_number);
 		}
 		echo ">> Environment Set"
 	}
+}
+
+def setEnvVar(String key, String value){
+
+	Jenkins instance = Jenkins.getInstance();
+
+	DescribableList<NodeProperty<?>, NodePropertyDescriptor> globalNodeProperties = instance.getGlobalNodeProperties();
+	List<EnvironmentVariablesNodeProperty> envVarsNodePropertyList = globalNodeProperties.getAll(EnvironmentVariablesNodeProperty.class);
+
+	EnvironmentVariablesNodeProperty newEnvVarsNodeProperty = null;
+	EnvVars envVars = null;
+
+	if ( envVarsNodePropertyList == null || envVarsNodePropertyList.size() == 0 ) {
+		newEnvVarsNodeProperty = new hudson.slaves.EnvironmentVariablesNodeProperty();
+		globalNodeProperties.add(newEnvVarsNodeProperty);
+		envVars = newEnvVarsNodeProperty.getEnvVars();
+	} else {
+		envVars = envVarsNodePropertyList.get(0).getEnvVars();
+	}
+	envVars.put(key, value)
+	instance.save()
 }
 
 def helloWorld() {
@@ -92,12 +120,12 @@ def analyzeJava(projectFolder = "./") {
 	stage('SonarQube Analysis') {
 		//unstash "project-stash"
 
-		
-		sh "ls ${projectFolder}"		
+
+		sh "ls ${projectFolder}"
 		sh "cat ${projectFolder}/pom.xml"
-		
+
 		def pom = readMavenPom file: "${projectFolder}/pom.xml"
-		
+
 		writeFile encoding: 'UTF-8', file: 'sonar-project.properties', text: """
 		  sonar.projectBaseDir=${projectFolder}
           sonar.projectKey=$pom.groupId:$pom.artifactId
@@ -107,7 +135,7 @@ def analyzeJava(projectFolder = "./") {
 	      sonar.tests=target/jacoco.exec
           sonar.sources=src/main/java"""
 		archive 'sonar-project.properties'
-		
+
 		sh "cat sonar-project.properties"
 
 		def scannerHome = tool 'sonar';
