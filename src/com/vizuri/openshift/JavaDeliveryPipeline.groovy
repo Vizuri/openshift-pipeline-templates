@@ -11,9 +11,9 @@ def call(body) {
 	
 	pipeline {
 		environment {
-			FEATURE = ""
-			DEVELOP = ""
-			RELEASE = ""
+			FEATURE = false
+			DEVELOP = false
+			RELEASE = false
 			RELEASE_NUMBER = "";
 		}
 	
