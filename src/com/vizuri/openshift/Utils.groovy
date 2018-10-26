@@ -49,6 +49,10 @@ def analyzeJava(projectFolder = "./") {
 	stage('SonarQube Analysis') {
 		//unstash "project-stash"
 
+		
+		sh "${projectFolder}"		
+		sh "cat ${projectFolder}/pom.xml"
+		
 		def pom = readMavenPom file: "${projectFolder}/pom.xml"
 		
 		writeFile encoding: 'UTF-8', file: 'sonar-project.properties', text: """
