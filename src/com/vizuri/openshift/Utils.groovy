@@ -50,7 +50,7 @@ def analyzeJava(projectFolder = "./") {
 		//unstash "project-stash"
 
 		
-		sh "${projectFolder}"		
+		sh "ls ${projectFolder}"		
 		sh "cat ${projectFolder}/pom.xml"
 		
 		def pom = readMavenPom file: "${projectFolder}/pom.xml"
