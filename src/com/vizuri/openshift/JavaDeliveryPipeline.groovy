@@ -9,6 +9,11 @@ def call(body) {
 	body.delegate = pipelineParams
 	body()
 
+	environment {
+		DISABLE_AUTH = 'true'
+		DB_ENGINE    = 'sqlite'
+	}
+	
 	pipeline {
 		try {
 			println ">>>> Starting DeliveryPipeline";
