@@ -45,7 +45,7 @@ def testJava(release_number) {
 	}
 }
 
-def anaylizeJava(projectFolder = "./") {
+def analyzeJava(projectFolder = "./") {
 	stage('SonarQube Analysis') {
 		//unstash "project-stash"
 
