@@ -50,11 +50,16 @@ def init(projectFolder = "./") {
 			release_number = pom.version
 		}
 		echo ">>> Setting Environment"
+		setEnVar("FEATURE",feature);
+		setEnVar("DEVELOP",develop);
+		setEnVar("RELEASE",release);
+		setEnVar("RELEASE_NUMBER",release_number);
+
 		environment {
-			setEnVar("FEATURE",feature);
-			setEnVar("DEVELOP",develop);
-			setEnVar("RELEASE",release);
-			setEnVar("RELEASE_NUMBER",release_number);
+			env.FEATURE = feature;
+			env.DEVELOP = develop;
+			env.RELEASE = release;
+			env.RELEASE_NUMBER = release_number;
 		}
 		echo ">> Environment Set"
 	}

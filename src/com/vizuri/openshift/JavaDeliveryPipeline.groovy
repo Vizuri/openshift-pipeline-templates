@@ -28,7 +28,7 @@ def call(body) {
 			if(env.FEATURE || env.RELEASE) {
 				node ('maven') {
 					unstash 'artifacts'
-					utils.deployJava(release_number, "http://nexus-cicd.apps.35.170.72.56.xip.io")
+					utils.deployJava(env.RELEASE_NUMBER, "http://nexus-cicd.apps.35.170.72.56.xip.io")
 				}
 			}
 
@@ -42,11 +42,11 @@ def call(body) {
 					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, env.RELEASE_NUMBER )
 				}
 			}
-			if(release) {
+			if(env.RELEASE) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
-					img = utils.dockerBuild(pipelineParams.app_name, release_number)
+					img = utils.dockerBuild(pipelineParams.app_name, env.RELEASE_NUMBER)
 					utils.dockerPush(img)
 					//utils.scanImage(pipelineParams.app_name, release_number )	
 					utils.confirmDeploy(pipelineParams.app_name, env.RELEASE_NUMBER,pipelineParams.ocp_test_project)			
