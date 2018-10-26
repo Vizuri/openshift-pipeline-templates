@@ -18,15 +18,15 @@ def init(projectFolder = "./") {
 	echo ">>>>>>  Branch Name: " + BRANCH_NAME;
 
 	if(BRANCH_NAME.startsWith("feature")) {
-		utils.notifyBuild()
+		notifyBuild()
 		feature = true;
 	}
 	else if(BRANCH_NAME.startsWith("develop")) {
-		utils.notifyBuild()
+		notifyBuild()
 		develop = true;
 	}
 	else if(BRANCH_NAME.startsWith("release")) {
-		utils.notifyBuild()
+		notifyBuild()
 		release = true;
 	}
 
