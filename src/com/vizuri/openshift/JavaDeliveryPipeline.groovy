@@ -8,9 +8,15 @@ def call(body) {
 	body.resolveStrategy = Closure.DELEGATE_FIRST
 	body.delegate = pipelineParams
 	body()
-
 	
 	pipeline {
+		environment {
+			FEATURE = ""
+			DEVELOP = ""
+			RELEASE = ""
+			RELEASE_NUMBER = "";
+		}
+	
 		try {
 			println ">>>> Starting DeliveryPipeline";			
 			utils.init();	
