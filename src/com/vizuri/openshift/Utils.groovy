@@ -65,7 +65,7 @@ def init(projectFolder = "./") {
 	}
 }
 
-def setEnvVar(String key, String value){
+def setEnvVar(key, value){
 
 	Jenkins instance = Jenkins.getInstance();
 
