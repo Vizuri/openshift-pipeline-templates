@@ -9,57 +9,24 @@ def call(body) {
 	body.delegate = pipelineParams
 	body()
 
-	environment {
-		DISABLE_AUTH = 'true'
-		DB_ENGINE    = 'sqlite'
-	}
+	utils.init();
+	
+	echo "${FEATURE}:${DEVELOP}:${RELEASE}:${RELEASE_NUMBER}"
 	
 	pipeline {
 		try {
 			println ">>>> Starting DeliveryPipeline";
-
-			def release_number;
-			def feature = false;
-			def develop = false;
-			def release = false;
-
-			echo ">>>>>>  Branch Name: " + BRANCH_NAME;
-
-			if(BRANCH_NAME.startsWith("feature")) {
-				utils.notifyBuild()
-				feature = true;
-			}
-			else if(BRANCH_NAME.startsWith("develop")) {
-				utils.notifyBuild()
-				develop = true;
-			}
-			else if(BRANCH_NAME.startsWith("release")) {
-				utils.notifyBuild()
-				release = true;
-			}
-
-			if(release) {
-				def tokens = BRANCH_NAME.tokenize( '/' )
-				branch_name = tokens[0]
-				branch_release_number = tokens[1]
-
-				release_number = branch_release_number
-			}
-			else {
-				release_number = pipelineParams.snapshot_release_number
-				ocp_project = pipelineParams.ocp_dev_project
-			}
-
-			if(feature || develop || release) {
+			
+			if( env.FEATURE || env.DEVELOP || env.RELEASE) {
 				node('maven') {
-					utils.buildJava(release_number)
-					utils.testJava(release_number)
+					utils.buildJava(env.RELEASE_NUMBER)
+					utils.testJava(env.RELEASE_NUMBER)
 					utils.analyzeJava()
 					stash name: 'artifacts'
 				}
 			}
-
-			if(develop || release) {
+			
+			if(env.FEATURE || env.RELEASE) {
 				node ('maven') {
 					unstash 'artifacts'
 					utils.deployJava(release_number, "http://nexus-cicd.apps.35.170.72.56.xip.io")
@@ -67,13 +34,13 @@ def call(body) {
 			}
 
 
-			if(develop) {
+			if(env.DEVELOP) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
-					img = utils.dockerBuild(pipelineParams.app_name, release_number)					
+					img = utils.dockerBuild(pipelineParams.app_name, env.RELEASE_NUMBER)					
 					utils.dockerPush(img)
-					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, release_number )
+					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, env.RELEASE_NUMBER )
 				}
 			}
 			if(release) {
@@ -83,10 +50,10 @@ def call(body) {
 					img = utils.dockerBuild(pipelineParams.app_name, release_number)
 					utils.dockerPush(img)
 					//utils.scanImage(pipelineParams.app_name, release_number )	
-					utils.confirmDeploy(pipelineParams.app_name, release_number,pipelineParams.ocp_test_project)			
-					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, release_number  )
-					utils.confirmDeploy(pipelineParams.app_name, release_number,pipelineParams.ocp_prod_project)			
-					utils.deployOpenshift(pipelineParams.ocp_prod_cluster, pipelineParams.ocp_prod_project, pipelineParams.app_name, release_number  )
+					utils.confirmDeploy(pipelineParams.app_name, env.RELEASE_NUMBER,pipelineParams.ocp_test_project)			
+					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, env.RELEASE_NUMBER  )
+					utils.confirmDeploy(pipelineParams.app_name, env.RELEASE_NUMBER,pipelineParams.ocp_prod_project)			
+					utils.deployOpenshift(pipelineParams.ocp_prod_cluster, pipelineParams.ocp_prod_project, pipelineParams.app_name, env.RELEASE_NUMBER  )
 				}
 			}
 		} catch (e) {

@@ -9,6 +9,46 @@ class Globals {
 
 }
 
+def init(projectFolder = "./") {
+	def release_number;
+	def feature = false;
+	def develop = false;
+	def release = false;
+
+	echo ">>>>>>  Branch Name: " + BRANCH_NAME;
+
+	if(BRANCH_NAME.startsWith("feature")) {
+		utils.notifyBuild()
+		feature = true;
+	}
+	else if(BRANCH_NAME.startsWith("develop")) {
+		utils.notifyBuild()
+		develop = true;
+	}
+	else if(BRANCH_NAME.startsWith("release")) {
+		utils.notifyBuild()
+		release = true;
+	}
+
+	if(release) {
+		def tokens = BRANCH_NAME.tokenize( '/' )
+		branch_name = tokens[0]
+		branch_release_number = tokens[1]
+
+		release_number = branch_release_number
+	}
+	else {
+		def pom = readMavenPom file: "${projectFolder}/pom.xml"		
+		release_number = pom.version
+	}
+
+	environment {
+		FEATURE = feature;
+		DEVELOP = develop;
+		RELEASE = release;
+		RELEASE_NUMBER = release_number;
+	}
+}
 
 def helloWorld() {
 	println("helloworkd");
