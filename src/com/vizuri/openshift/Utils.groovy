@@ -45,6 +45,41 @@ def testJava(release_number) {
 	}
 }
 
+def anaylizeJava(projectFolder = "./") {
+	stage('SonarQube Analysis') {
+		//unstash "project-stash"
+
+		def pom = readMavenPom file: "${projectFolder}/pom.xml"
+		
+		writeFile encoding: 'UTF-8', file: 'sonar-project.properties', text: """
+		  sonar.projectBaseDir=${projectFolder}
+          sonar.projectKey=$pom.groupId:$pom.artifactId
+          sonar.projectName=$pom.name
+          sonar.projectVersion=$pom.version
+	      sonar.java.binaries=target/classes
+	      sonar.tests=target/jacoco.exec
+          sonar.sources=src/main/java"""
+		archive 'sonar-project.properties'
+		
+		sh "cat sonar-project.properties"
+
+		def scannerHome = tool 'sonar';
+
+		withSonarQubeEnv('sonar') { sh "${scannerHome}/bin/sonar-scanner" }
+
+	}
+
+
+//	stage("Quality Gate"){
+//		timeout(time: 1, unit: 'HOURS') {
+//			def qg = waitForQualityGate()
+//			if (qg.status != 'OK') {
+//				error "Pipeline aborted due to quality gate failure: ${qg.status}"
+//			}
+//		}
+//	}
+}
+
 def deployJava(release_number, nexus_url) {
 	echo "In deployJava: ${release_number}"
 
@@ -120,9 +155,9 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 		}
 	}
 }
-def confirmDeploy(app_name, release_number, env) {
-	stage('Confirm Deploy to ${env}?') {
-		notify("cicd-test", "Release ${release_number} of ${app_name} is ready for test test. Promote release here ${JOB_URL}")
+def confirmDeploy(app_name, release_number, ocp_project) {
+	stage("Confirm Deploy to ${ocp_project}?") {
+		notify(ocp_project, "Release ${release_number} of ${app_name} is ready for test test. Promote release here ${JOB_URL}")
 		input message: "Do you want to deploy ${app_name} release ${release_number} to ${env}?", submitter: "keudy"
 	}
 }
@@ -168,51 +203,55 @@ def getSlackToken(channel) {
 	def token;
 	if(channel.equals("cicd-feature")) {
 		token = "PsY21OKCkPM5ED01xurKwQkq";
-	} 
+	}
 	else if (channel.equals("cicd-develop")) {
 		token = "PsY21OKCkPM5ED01xurKwQkq";
-	} 
+	}
 	else if (channel.equals("cicd-test")) {
 		token = "dMQ7l26s3pb4qa4AijxanODC";
-	}	
+	}
 	else if (channel.equals("cicd-prod")) {
 		token = "HW5G7kmVdRU6XyDJrcKvdyQA";
 	}
 	return token;
 }
 
-def notify(channel, message) {
+def notify(ocp_project, message) {
+	def channel;
+	if(ocp_project.sontains("test")) {
+		channel = "cicd-test"
+	}
+	else if(ocp_project_contains("prod")) {
+		channel = "cicd-prod"
+	}
+
 	def token = getSlackToken(channel);
-	slackSend color: "good", channel: 'cicd-test', token: token, message: message
+	slackSend color: "good", channel: channel, token: token, message: message
 }
 
 def notifyBuild(String buildStatus = 'STARTED') {
 	// build status of null means successful
 	buildStatus =  buildStatus ?: 'SUCCESSFUL'
-	
+
 	echo "In notifyBuild ${buildStatus} : ${BRANCH_NAME}"
-	
+
 	def buildType;
 	def channel;
 	def token = getSlackToken(channel);
-	
+
 	if(BRANCH_NAME.startsWith("feature")) {
 		buildType = "Feature"
 		channel = "cicd-develop"
-		//token = "PsY21OKCkPM5ED01xurKwQkq"
 	}
 	else if(BRANCH_NAME.startsWith("develop")) {
 		buildType = "Develop"
 		channel = "cicd-develop"
-		//token = "dMQ7l26s3pb4qa4AijxanODC"
 	}
 	else if(BRANCH_NAME.startsWith("release")) {
 		buildType = "Release"
 		channel = "cicd-test"
-		//token = "PsY21OKCkPM5ED01xurKwQkq"
 	}
 
-	// Override default values based on build status
 	if (buildStatus == 'STARTED') {
 		slackSend color: "good", channel: channel, token: token, message: "${buildType} Job: ${BRANCH_NAME} with buildnumber ${env.BUILD_NUMBER} was started"
 	} else if (buildStatus == 'SUCCESS') {

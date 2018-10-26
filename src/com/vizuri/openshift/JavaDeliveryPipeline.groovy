@@ -13,18 +13,10 @@ def call(body) {
 		try {
 			println ">>>> Starting DeliveryPipeline";
 
-			println ">>>>>  Build Number ${BUILD_NUMBER}";
-			println ">>>>>  JENKINS_URL ${JENKINS_URL}";
-			println ">>>>>  BUILD_URL ${BUILD_URL}";
-			println ">>>>>  JOB_URL ${JOB_URL}";
-
-
 			def release_number;
-
 			def feature = false;
 			def develop = false;
 			def release = false;
-
 
 			echo ">>>>>>  Branch Name: " + BRANCH_NAME;
 
@@ -57,6 +49,7 @@ def call(body) {
 				node('maven') {
 					utils.buildJava(release_number)
 					utils.testJava(release_number)
+					utils.analyzeJava()
 					stash name: 'artifacts'
 				}
 			}
@@ -85,16 +78,13 @@ def call(body) {
 					img = utils.dockerBuild(pipelineParams.app_name, release_number)
 					utils.dockerPush(img)
 					//utils.scanImage(pipelineParams.app_name, release_number )	
-					utils.confirmDeploy(pipelineParams.app_name, release_number, "Test")			
-//					stage('Confirm Deploy to Test?') {
-//						utils.notify("cicd-test", "Release ${release_number} of ${pipelineParams.app_name} is ready for test test. Promote release here ${JOB_URL}")
-//						input message: "Do you want to deploy ${pipelineParams.app_name} release ${release_number} to test?", submitter: "keudy"
-//					}
+					utils.confirmDeploy(pipelineParams.app_name, release_number,pipelineParams.ocp_test_project)			
 					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, release_number  )
+					utils.confirmDeploy(pipelineParams.app_name, release_number,pipelineParams.ocp_prod_project)			
+					utils.deployOpenshift(pipelineParams.ocp_prod_cluster, pipelineParams.ocp_prod_project, pipelineParams.app_name, release_number  )
 				}
 			}
 		} catch (e) {
-			// If there was an exception thrown, the build failed
 			currentBuild.result = "FAILED"
 			throw e
 		} finally {
