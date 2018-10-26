@@ -9,14 +9,13 @@ def call(body) {
 	body.delegate = pipelineParams
 	body()
 
-	utils.init();
-	
-	echo "${FEATURE}:${DEVELOP}:${RELEASE}:${RELEASE_NUMBER}"
 	
 	pipeline {
 		try {
-			println ">>>> Starting DeliveryPipeline";
-			
+			println ">>>> Starting DeliveryPipeline";			
+			utils.init();	
+			echo "${FEATURE}:${DEVELOP}:${RELEASE}:${RELEASE_NUMBER}"
+		
 			if( env.FEATURE || env.DEVELOP || env.RELEASE) {
 				node('maven') {
 					utils.buildJava(env.RELEASE_NUMBER)

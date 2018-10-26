@@ -29,7 +29,7 @@ def init(projectFolder = "./") {
 		notifyBuild()
 		release = true;
 	}
-
+    echo ">> Setting Release Number"
 	if(release) {
 		def tokens = BRANCH_NAME.tokenize( '/' )
 		branch_name = tokens[0]
@@ -41,7 +41,7 @@ def init(projectFolder = "./") {
 		def pom = readMavenPom file: "${projectFolder}/pom.xml"		
 		release_number = pom.version
 	}
-
+    echo ">>> Setting Environment"
 	environment {
 		FEATURE = feature;
 		DEVELOP = develop;
