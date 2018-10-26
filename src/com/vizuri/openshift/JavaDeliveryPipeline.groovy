@@ -14,7 +14,7 @@ def call(body) {
 		try {
 			println ">>>> Starting DeliveryPipeline";			
 			utils.init();	
-			echo "${FEATURE}:${DEVELOP}:${RELEASE}:${RELEASE_NUMBER}"
+			echo "${env.FEATURE}:${env.DEVELOP}:${env.RELEASE}:${env.RELEASE_NUMBER}"
 		
 			if( env.FEATURE || env.DEVELOP || env.RELEASE) {
 				node('maven') {
