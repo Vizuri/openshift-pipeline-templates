@@ -49,6 +49,7 @@ def init(projectFolder = "./") {
 			RELEASE = release;
 			RELEASE_NUMBER = release_number;
 		}
+		echo ">> Environment Set"
 	}
 }
 
