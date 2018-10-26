@@ -51,10 +51,10 @@ def init(projectFolder = "./") {
 		}
 		echo ">>> Setting Environment"
 		environment {
-			setEnVar(FEATURE,feature);
-			setEnVar(DEVELOP,develop);
-			setEnVar(RELEASE,release);
-			setEnVar(RELEASE_NUMBER,release_number);
+			setEnVar("FEATURE",feature);
+			setEnVar("DEVELOP",develop);
+			setEnVar("RELEASE",release);
+			setEnVar("RELEASE_NUMBER",release_number);
 		}
 		echo ">> Environment Set"
 	}
