@@ -40,7 +40,10 @@ def init(projectFolder = "./") {
 		}
 		else {
 			def pom = readMavenPom file: "${projectFolder}/pom.xml"
-			release_number = pom.version
+		
+			//release_number = pom.version
+			release_number = pom.properties.get("build.number")
+			echo "release_number: ${release_number}"
 		}
 		echo ">>> Setting Environment"
 		env.FEATURE = feature;
