@@ -11,18 +11,15 @@ def call(body) {
 	
 	pipeline {
 		environment {
-			FEATURE = false
-			DEVELOP = false
-			RELEASE = false
 			RELEASE_NUMBER = "";
 		}
 	
 		try {
 			println ">>>> Starting DeliveryPipeline";			
 			utils.init();	
-			echo "${env.FEATURE}:${env.DEVELOP}:${env.RELEASE}:${env.RELEASE_NUMBER}"
+			echo "utils.isFeature():utils.isRelease():utils.isDevelop():${env.RELEASE_NUMBER}"
 		
-			if( env.FEATURE || env.DEVELOP || env.RELEASE) {
+			if( utils.isFeature() || utils.isDevelop() || utils.isRelease()) {
 				node('maven') {
 					utils.buildJava(env.RELEASE_NUMBER)
 					utils.testJava(env.RELEASE_NUMBER)
@@ -31,7 +28,7 @@ def call(body) {
 				}
 			}
 			
-			if(env.FEATURE || env.RELEASE) {
+			if(utils.isFeature() || utils.isRelease()) {
 				node ('maven') {
 					unstash 'artifacts'
 					utils.deployJava(env.RELEASE_NUMBER, "http://nexus-cicd.apps.35.170.72.56.xip.io")
@@ -39,7 +36,7 @@ def call(body) {
 			}
 
 
-			if(env.DEVELOP) {
+			if(utils.isDevelop()) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
@@ -48,13 +45,13 @@ def call(body) {
 					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, env.RELEASE_NUMBER )
 				}
 			}
-			if(env.RELEASE) {
+			if(utils.isRelease()) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name, env.RELEASE_NUMBER)
 					utils.dockerPush(img)
-					//utils.scanImage(pipelineParams.app_name, release_number )	
+					//utils.scanImage(pipelineParams.app_name, env.RELEASE_NUMBER )	
 					utils.confirmDeploy(pipelineParams.app_name, env.RELEASE_NUMBER,pipelineParams.ocp_test_project)			
 					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, env.RELEASE_NUMBER  )
 					utils.confirmDeploy(pipelineParams.app_name, env.RELEASE_NUMBER,pipelineParams.ocp_prod_project)			

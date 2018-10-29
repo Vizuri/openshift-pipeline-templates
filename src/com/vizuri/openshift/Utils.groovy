@@ -11,27 +11,26 @@ class Globals {
 
 def init(projectFolder = "./") {
 	node {
-		def release_number;
-		def feature = false;
-		def develop = false;
-		def release = false;
-
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
-
-		if(BRANCH_NAME.startsWith("feature")) {
-			notifyBuild()
-			feature = true;
-		}
-		else if(BRANCH_NAME.startsWith("develop")) {
-			notifyBuild()
-			develop = true;
-		}
-		else if(BRANCH_NAME.startsWith("release")) {
-			notifyBuild()
-			release = true;
-		}
-		echo ">> Setting Release Number"
-		if(release) {
+		def release_number;
+//		def feature = false;
+//		def develop = false;
+//		def release = false;
+//
+//
+//		if(BRANCH_NAME.startsWith("feature")) {
+//			notifyBuild()
+//			feature = true;
+//		}
+//		else if(BRANCH_NAME.startsWith("develop")) {
+//			notifyBuild()
+//			develop = true;
+//		}
+//		else if(BRANCH_NAME.startsWith("release")) {
+//			notifyBuild()
+//			release = true;
+//		}
+		if(isRelease()) {
 			def tokens = BRANCH_NAME.tokenize( '/' )
 			branch_name = tokens[0]
 			branch_release_number = tokens[1]
@@ -40,22 +39,35 @@ def init(projectFolder = "./") {
 		}
 		else {
 			def pom = readMavenPom file: "${projectFolder}/pom.xml"
-		
-			//release_number = pom.version
 			release_number = pom.properties.get("build.number")
 			echo "release_number: ${release_number}"
 		}
-		echo ">>> Setting Environment"
-		env.FEATURE = feature;
-		env.DEVELOP = develop;
-		env.RELEASE = release;
+
 		env.RELEASE_NUMBER = release_number;
-		echo ">> Environment Set"
 	}
 }
 
-
-
+def isFeature() {
+	if(BRANCH_NAME.startsWith("feature")) {
+		notifyBuild()
+		return true;
+	}
+	return false;
+}
+def isRelease() {
+	if(BRANCH_NAME.startsWith("release")) {
+		notifyBuild()
+		return true;
+	}
+	return false;
+}
+def isDevelop() {
+	if(BRANCH_NAME.startsWith("develop")) {
+		notifyBuild()
+		return true;
+	}
+	return false;
+}
 def helloWorld() {
 	println("helloworkd");
 }
