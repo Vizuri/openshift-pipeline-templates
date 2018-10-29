@@ -13,27 +13,38 @@ def call(body) {
 		environment {
 			RELEASE_NUMBER = "";
 		}
+		
+		def projectFolder;
+		if(pipelineParams.project_folder) {
+			echo "setting project_folder: ${pipelineParams.project_folder}"
+			projectFolder = pipelineParams.project_folder
+		}
+		else {
+			echo "setting project_folder: default"
+			projectFolder = "./"
+		}
 	
 		try {
-			println ">>>> Starting DeliveryPipeline";
+			println ">>>> Starting JavaDeliveryPipeline";
 			utils.init();
 			echo "utils.isFeature():utils.isRelease():utils.isDevelop():${env.RELEASE_NUMBER}"
 		
 			if( utils.isFeature() || utils.isDevelop() || utils.isRelease()) {
 				node('maven') {
-					utils.buildJava()
-					utils.testJava()
-					utils.analyzeJava()
+					utils.buildJava(projectFolder)
+					utils.testJava(projectFolder)
+					utils.analyzeJava(projectFolder)
 					stash name: 'artifacts'
 				}
 			}
 			
-			if(utils.isDevelop() || utils.isRelease()) {
+			if(utils.isRelease() ||  utils.isDevelop()) {
 				node ('maven') {
 					unstash 'artifacts'
-					utils.deployJava()
+					utils.deployJava(projectFolder)
 				}
 			}
+
 		} catch (e) {
 			currentBuild.result = "FAILED"
 			throw e

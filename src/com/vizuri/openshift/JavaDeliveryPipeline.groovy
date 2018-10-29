@@ -25,7 +25,7 @@ def call(body) {
 		}
 	
 		try {
-			println ">>>> Starting DeliveryPipeline";			
+			println ">>>> Starting JavaDeliveryPipeline";			
 			utils.init();	
 			echo "utils.isFeature():utils.isRelease():utils.isDevelop():${env.RELEASE_NUMBER}"
 		
