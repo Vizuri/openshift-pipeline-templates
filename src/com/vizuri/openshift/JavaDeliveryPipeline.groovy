@@ -13,7 +13,7 @@ def call(body) {
 		environment {
 			RELEASE_NUMBER = "";
 		}
-		
+		checkout scm
 		def projectFolder;
 		if(pipelineParams.project_folder) {
 			echo "setting project_folder: ${pipelineParams.project_folder}"
