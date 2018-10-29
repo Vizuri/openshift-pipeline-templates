@@ -38,7 +38,7 @@ def call(body) {
 				}
 			}
 			
-			if(utils.isRelease() ||  utils.isDevelop(  ) {
+			if(utils.isRelease() ||  utils.isDevelop()) {
 				node ('maven') {
 					unstash 'artifacts'
 					utils.deployJava(projectFolder)
