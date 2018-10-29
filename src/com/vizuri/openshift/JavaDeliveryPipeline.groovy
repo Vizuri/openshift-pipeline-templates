@@ -51,7 +51,7 @@ def call(body) {
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name)
 					utils.dockerPush(img)
-					//utils.scanImage(pipelineParams.app_name, env.RELEASE_NUMBER )	
+					utils.scanImage(pipelineParams.app_name )	
 					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_test_project)			
 					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name  )
 					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_prod_project)			
@@ -62,7 +62,6 @@ def call(body) {
 			currentBuild.result = "FAILED"
 			throw e
 		} finally {
-			// Success or failure, always send notifications
 			utils.notifyBuild(currentBuild.result)
 		}
 	}
