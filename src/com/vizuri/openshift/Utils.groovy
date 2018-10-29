@@ -57,7 +57,7 @@ def helloWorld() {
 }
 
 
-def buildJava() {
+def buildJava(projectFolder = "./") {
 	echo "In buildJava: ${env.RELEASE_NUMBER}"
 	stage('Checkout') {
 		echo "In checkout"
@@ -65,15 +65,15 @@ def buildJava() {
 	}
 	stage('Build') {
 		echo "In Build"
-		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
+		sh "mvn -s configuration/settings.xml -f ${projectFolder} -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
 	}
 }
-def testJava() {
+def testJava(projectFolder = "./") {
 	echo "In testJava: ${env.RELEASE_NUMBER}"
 	stage ('Unit Test') {
 		parallel (
-				"unit tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${env.RELEASE_NUMBER} test" },
-				"integration tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${env.RELEASE_NUMBER} integration-test" }
+				"unit tests": { sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} test" },
+				"integration tests": { sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} integration-test" }
 				)
 		junit 'target/surefire-reports/*.xml'
 
@@ -126,17 +126,17 @@ def analyzeJava(projectFolder = "./") {
 	}
 }
 
-def deployJava() {
+def deployJava(projectFolder = "./") {
 	echo "In deployJava: ${env.RELEASE_NUMBER}"
 	def nexus_url = Globals.nexusUrl;
 
 	stage('Deploy Build Artifact') {
 		echo "In Deploy"
 		if(nexus_url != null) {
-			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} -Dnexus.url=${nexus_url} deploy"
+			sh "mvn -s configuration/settings.xml -f ${projectFolder} -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} -Dnexus.url=${nexus_url} deploy"
 		}
 		else {
-			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} deploy"
+			sh "mvn -s configuration/settings.xml -f ${projectFolder} -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} deploy"
 		}
 	}
 }

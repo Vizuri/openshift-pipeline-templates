@@ -8,63 +8,36 @@ def call(body) {
 	body.resolveStrategy = Closure.DELEGATE_FIRST
 	body.delegate = pipelineParams
 	body()
-
+	
 	pipeline {
+		environment {
+			RELEASE_NUMBER = "";
+		}
+	
 		try {
 			println ">>>> Starting DeliveryPipeline";
-
-			def release_number;
-			def feature = false;
-			def develop = false;
-			def release = false;
-
-			echo ">>>>>>  Branch Name: " + BRANCH_NAME;
-
-			if(BRANCH_NAME.startsWith("feature")) {
-				utils.notifyBuild()
-				feature = true;
-			}
-			else if(BRANCH_NAME.startsWith("develop")) {
-				utils.notifyBuild()
-				develop = true;
-			}
-			else if(BRANCH_NAME.startsWith("release")) {
-				utils.notifyBuild()
-				release = true;
-			}
-
-			if(release) {
-				def tokens = BRANCH_NAME.tokenize( '/' )
-				branch_name = tokens[0]
-				branch_release_number = tokens[1]
-
-				release_number = branch_release_number
-			}
-			else {
-				release_number = pipelineParams.snapshot_release_number
-				ocp_project = pipelineParams.ocp_dev_project
-			}
-
-			if(feature || develop || release) {
+			utils.init();
+			echo "utils.isFeature():utils.isRelease():utils.isDevelop():${env.RELEASE_NUMBER}"
+		
+			if( utils.isFeature() || utils.isDevelop() || utils.isRelease()) {
 				node('maven') {
-					utils.buildJava(release_number)
-					utils.testJava(release_number)
+					utils.buildJava()
+					utils.testJava()
 					utils.analyzeJava()
 					stash name: 'artifacts'
 				}
 			}
-
-			if(develop || release) {
+			
+			if(utils.isDevelop() || utils.isRelease()) {
 				node ('maven') {
 					unstash 'artifacts'
-					utils.deployJava(release_number, "http://nexus-cicd.apps.35.170.72.56.xip.io")
+					utils.deployJava()
 				}
 			}
 		} catch (e) {
 			currentBuild.result = "FAILED"
 			throw e
 		} finally {
-			// Success or failure, always send notifications
 			utils.notifyBuild(currentBuild.result)
 		}
 	}
