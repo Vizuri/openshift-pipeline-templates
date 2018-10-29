@@ -35,6 +35,8 @@ def call(body) {
 			if( utils.isFeature() || utils.isDevelop() || utils.isRelease()) {
 				node('maven') {
 					utils.buildJava(projectFolder)
+					utils.testJava(projectFolder)
+					utils.analyzeJava(projectFolder)
 					stash name: 'artifacts'
 				}
 			}
