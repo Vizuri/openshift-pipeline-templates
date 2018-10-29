@@ -6,30 +6,14 @@ class Globals {
 	static String imageNamespace = "vizuri"
 	static String containerRegistry = "https://ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com"
 	//def containerRegistry = "docker-registry.default.svc:5000"
-
+	static String nexusUrl = "http://nexus-cicd.apps.35.170.72.56.xip.io"
 }
 
 def init(projectFolder = "./") {
 	node {
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
 		def release_number;
-//		def feature = false;
-//		def develop = false;
-//		def release = false;
-//
-//
-//		if(BRANCH_NAME.startsWith("feature")) {
-//			notifyBuild()
-//			feature = true;
-//		}
-//		else if(BRANCH_NAME.startsWith("develop")) {
-//			notifyBuild()
-//			develop = true;
-//		}
-//		else if(BRANCH_NAME.startsWith("release")) {
-//			notifyBuild()
-//			release = true;
-//		}
+
 		if(isRelease()) {
 			def tokens = BRANCH_NAME.tokenize( '/' )
 			branch_name = tokens[0]
@@ -73,23 +57,23 @@ def helloWorld() {
 }
 
 
-def buildJava(release_number) {
-	echo "In buildJava: ${release_number}"
+def buildJava() {
+	echo "In buildJava: ${env.RELEASE_NUMBER}"
 	stage('Checkout') {
 		echo "In checkout"
 		checkout scm
 	}
 	stage('Build') {
 		echo "In Build"
-		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} clean install"
+		sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
 	}
 }
-def testJava(release_number) {
-	echo "In testJava: ${release_number}"
+def testJava() {
+	echo "In testJava: ${env.RELEASE_NUMBER}"
 	stage ('Unit Test') {
 		parallel (
-				"unit tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${release_number} test" },
-				"integration tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${release_number} integration-test" }
+				"unit tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${env.RELEASE_NUMBER} test" },
+				"integration tests": { sh "mvn -s configuration/settings.xml -Dbuild.number=${env.RELEASE_NUMBER} integration-test" }
 				)
 		junit 'target/surefire-reports/*.xml'
 
@@ -142,16 +126,17 @@ def analyzeJava(projectFolder = "./") {
 	}
 }
 
-def deployJava(release_number, nexus_url) {
-	echo "In deployJava: ${release_number}"
+def deployJava() {
+	echo "In deployJava: ${env.RELEASE_NUMBER}"
+	def nexus_url = Globals.nexusUrl;
 
 	stage('Deploy Build Artifact') {
 		echo "In Deploy"
 		if(nexus_url != null) {
-			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} -Dnexus.url=${nexus_url} deploy"
+			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} -Dnexus.url=${nexus_url} deploy"
 		}
 		else {
-			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${release_number} deploy"
+			sh "mvn -s configuration/settings.xml -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} deploy"
 		}
 	}
 }
@@ -217,10 +202,10 @@ def dockerBuildOpenshift(ocp_cluster, ocp_project, app_name) {
 		}
 	}
 }
-def confirmDeploy(app_name, release_number, ocp_project) {
+def confirmDeploy(app_name, ocp_project) {
 	stage("Confirm Deploy to ${ocp_project}?") {
-		notify(ocp_project, "Release ${release_number} of ${app_name} is ready for test test. Promote release here ${JOB_URL}")
-		input message: "Do you want to deploy ${app_name} release ${release_number} to ${env}?", submitter: "keudy"
+		notify(ocp_project, "Release ${env.RELEASE_NUMBER} of ${app_name} is ready for test test. Promote release here ${JOB_URL}")
+		input message: "Do you want to deploy ${app_name} release ${env.RELEASE_NUMBER} to ${env}?", submitter: "keudy"
 	}
 }
 

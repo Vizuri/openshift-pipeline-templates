@@ -21,8 +21,8 @@ def call(body) {
 		
 			if( utils.isFeature() || utils.isDevelop() || utils.isRelease()) {
 				node('maven') {
-					utils.buildJava(env.RELEASE_NUMBER)
-					utils.testJava(env.RELEASE_NUMBER)
+					utils.buildJava()
+					utils.testJava()
 					utils.analyzeJava()
 					stash name: 'artifacts'
 				}
@@ -31,7 +31,7 @@ def call(body) {
 			if(utils.isFeature() || utils.isRelease()) {
 				node ('maven') {
 					unstash 'artifacts'
-					utils.deployJava(env.RELEASE_NUMBER, "http://nexus-cicd.apps.35.170.72.56.xip.io")
+					utils.deployJava()
 				}
 			}
 
@@ -40,22 +40,22 @@ def call(body) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
-					img = utils.dockerBuild(pipelineParams.app_name, env.RELEASE_NUMBER)					
+					img = utils.dockerBuild(pipelineParams.app_name)					
 					utils.dockerPush(img)
-					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name, env.RELEASE_NUMBER )
+					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name )
 				}
 			}
 			if(utils.isRelease()) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
-					img = utils.dockerBuild(pipelineParams.app_name, env.RELEASE_NUMBER)
+					img = utils.dockerBuild(pipelineParams.app_name)
 					utils.dockerPush(img)
 					//utils.scanImage(pipelineParams.app_name, env.RELEASE_NUMBER )	
-					utils.confirmDeploy(pipelineParams.app_name, env.RELEASE_NUMBER,pipelineParams.ocp_test_project)			
-					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name, env.RELEASE_NUMBER  )
-					utils.confirmDeploy(pipelineParams.app_name, env.RELEASE_NUMBER,pipelineParams.ocp_prod_project)			
-					utils.deployOpenshift(pipelineParams.ocp_prod_cluster, pipelineParams.ocp_prod_project, pipelineParams.app_name, env.RELEASE_NUMBER  )
+					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_test_project)			
+					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name  )
+					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_prod_project)			
+					utils.deployOpenshift(pipelineParams.ocp_prod_cluster, pipelineParams.ocp_prod_project, pipelineParams.app_name  )
 				}
 			}
 		} catch (e) {
