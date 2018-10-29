@@ -211,7 +211,9 @@ def confirmDeploy(app_name, ocp_project) {
 }
 
 
-def deployOpenshift(ocp_cluster, ocp_project, app_name, tag) {
+def deployOpenshift(ocp_cluster, ocp_project, app_name) {
+	def tag = "${env.RELEASE_NUMBER}"
+	
 	stage("Deploy Openshift ${ocp_project}") {
 		echo "In Deploy: ${ocp_cluster} : ${ocp_project} : ${app_name}"
 		openshift.withCluster( "${ocp_cluster}" ) {
