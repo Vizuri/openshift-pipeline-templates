@@ -140,7 +140,8 @@ def deployJava() {
 		}
 	}
 }
-def dockerBuild(app_name, tag) {
+def dockerBuild(app_name) {
+	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Build') {
 		echo "In DockerBuild: ${app_name} "
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
