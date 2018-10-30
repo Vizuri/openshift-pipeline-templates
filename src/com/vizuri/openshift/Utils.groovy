@@ -75,14 +75,14 @@ def testJava(projectFolder = "./") {
 				"unit tests": { sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} test" },
 				"integration tests": { sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} integration-test" }
 				)
-		junit 'target/surefire-reports/*.xml'
+		junit "${projectFolder}/target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
 			thresholds: [
 				[$class: 'FailedThreshold', unstableThreshold: '1']
 			],
 			tools: [
-				[$class: 'JUnitType', pattern: 'target/surefire-reports/*.xml']
+				[$class: 'JUnitType', pattern: '${projectFolder}/target/surefire-reports/*.xml']
 			]])
 	}
 }
