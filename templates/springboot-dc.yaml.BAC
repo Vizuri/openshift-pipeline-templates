@@ -34,7 +34,7 @@ parameters:
   value: fhirdb
 - description: Database Port
   name: DATABASE_PORT
-  value: "5432"
+  value: 5432
 - description: Database Db
   name: DATABASE_DB
   value: fhir
