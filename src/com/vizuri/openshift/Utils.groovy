@@ -77,9 +77,23 @@ def buildJava(projectFolder = "./") {
 def testJava(projectFolder = "./") {
 	echo "In testJava: ${env.RELEASE_NUMBER}"
 	stage ('Unit Test') {
-		parallel (
-				"unit tests": { sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} test" },
-				"integration tests": { sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} integration-test" }
+		sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} test"
+		junit "${projectFolder}/target/surefire-reports/*.xml"
+
+		step([$class: 'XUnitBuilder',
+			thresholds: [
+				[$class: 'FailedThreshold', unstableThreshold: '1']
+			],
+			tools: [
+				[$class: "JUnitType", pattern: "${projectFolder}/target/surefire-reports/*.xml"]
+			]])
+	}
+}
+
+def integrationTestJava(projectFolder = "./") {
+	echo "In testJava: ${env.RELEASE_NUMBER}"
+	stage ('Unit Test') {
+		sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} integration-test" 
 				)
 		junit "${projectFolder}/target/surefire-reports/*.xml"
 
