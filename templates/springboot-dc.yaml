@@ -34,12 +34,12 @@ parameters:
   value: fhirdb
 - description: Database Port
   name: DATABASE_PORT
-  value: "5432"
+  value: "27017"
 - description: Database Db
   name: DATABASE_DB
   value: fhir
 - description: Database Username
-  name: DATABASE_USERNAME
+  name: DATABASE_USER
   value: fhir
 - description: Database Password
   name: DATABASE_PASSWORD
