@@ -29,6 +29,21 @@ parameters:
 - description: POD CPU Request
   name: CPU_REQUEST
   value: 100m
+- description: Database Host
+  name: DATABASE_HOST
+  value: fhirdb
+- description: Database Port
+  name: DATABASE_PORT
+  value: 5432
+- description: Database Db
+  name: DATABASE_DB
+  value: fhir
+- description: Database Username
+  name: DATABASE_USERNAME
+  value: fhir
+- description: Database Password
+  name: DATABASE_PASSWORD
+  value: fhir
 objects:
 - apiVersion: v1
   kind: Route
@@ -79,6 +94,16 @@ objects:
           env:
           - name: JAVA_OPTS
             value: '${JAVA_OPTS}'
+          - name: MONGO_DATABASE_HOST
+            value: '${DATABASE_HOST}'
+          - name: MONGO_DATABASE_PORT
+            value: '${DATABASE_PORT}'
+          - name: MONGO_DATABASE_DB
+            value: '${DATABASE_DB}'
+          - name: MONGO_DATABASE_USER
+            value: '${DATABASE_USER}'
+          - name: MONGO_DATABASE_PASSWORD
+            value: '${DATABASE_PASSWORD}'
           image: ${IMAGE_NAME}
           imagePullPolicy: "Always"
           name: "${APP_NAME}"
