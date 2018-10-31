@@ -10,12 +10,12 @@ class Globals {
 }
 
 def init(projectFolder = "./") {
-	tools {
-		maven 'maven'
-		jdk 'jdk'
-		oc 'oc'
-		git 'git'
-	}
+//	tools {
+//		maven 'maven'
+//		jdk 'jdk'
+//		oc 'oc'
+//		git 'git'
+//	}
 	node {
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
 		def release_number;
