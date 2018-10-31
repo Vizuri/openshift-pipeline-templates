@@ -2,11 +2,11 @@ package com.vizuri.openshift
 
 //def containerRegistry = "docker-registry.default.svc:5000"
 class Globals {
-	static String imageBase = "ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com"
+	static String imageBase = "quay.kee.vizuri.com"
 	static String imageNamespace = "vizuri"
-	static String containerRegistry = "https://ae86b1744d79011e8923c025188aea9c-1829846909.us-east-1.elb.amazonaws.com"
+	static String containerRegistry = "https://quay.kee.vizuri.com"
 	//def containerRegistry = "docker-registry.default.svc:5000"
-	static String nexusUrl = "http://nexus-cicd.apps.35.170.72.56.xip.io"
+	static String nexusUrl = "http://nexus-cicd.apps.aws-ocp-02.kee.vizuri.com"
 }
 
 def init(projectFolder = "./") {
