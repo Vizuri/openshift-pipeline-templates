@@ -162,9 +162,9 @@ def deployJava(projectFolder = "./") {
 def dockerBuild(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Build') {
-		echo "In DockerBuild: ${app_name} "
+		echo "In DockerBuild: ${app_name}:${tag}"
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
-			def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}", "-f ${projectFolder}")
+			def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}", "${projectFolder}")
 			return img
 		}
 	}
