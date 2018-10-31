@@ -159,17 +159,17 @@ def deployJava(projectFolder = "./") {
 		}
 	}
 }
-def dockerBuild(app_name) {
+def dockerBuild(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Build') {
 		echo "In DockerBuild: ${app_name} "
 		docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
-			def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}")
+			def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}", "-f ${projectFolder}")
 			return img
 		}
 	}
 }
-def scanImage(app_name) {
+def scanImage(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Scan') {
 		writeFile file: 'anchore_images', text: "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} Dockerfile"

@@ -52,7 +52,7 @@ def call(body) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
-					img = utils.dockerBuild(pipelineParams.app_name)					
+					img = utils.dockerBuild(pipelineParams.app_name, projectFolder)					
 					utils.dockerPush(img)
 					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name )
 				}
@@ -61,7 +61,7 @@ def call(body) {
 				node {
 					deleteDir()
 					unstash 'artifacts'
-					img = utils.dockerBuild(pipelineParams.app_name)
+					img = utils.dockerBuild(pipelineParams.app_name, projectFolder)
 					utils.dockerPush(img)
 					utils.scanImage(pipelineParams.app_name )	
 					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_test_project)			
