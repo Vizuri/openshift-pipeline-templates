@@ -92,9 +92,8 @@ def testJava(projectFolder = "./") {
 
 def integrationTestJava(projectFolder = "./") {
 	echo "In testJava: ${env.RELEASE_NUMBER}"
-	stage ('Unit Test') {
+	stage ('Integration Test') {
 		sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} integration-test" 
-				)
 		junit "${projectFolder}/target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
