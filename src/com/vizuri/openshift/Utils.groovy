@@ -90,7 +90,8 @@ def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
 	def ocpAppSuffix = Globals.ocpAppSuffix;
 	def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
 	stage ('Integration Test') {
-		sh "mvn -s configuration/settings.xml -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
+		def maven = tool 'maven'
+		sh "${maven}/bin/mvn -s configuration/settings.xml -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
 		junit "${projectFolder}/target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
