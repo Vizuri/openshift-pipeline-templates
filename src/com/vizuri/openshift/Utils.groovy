@@ -94,7 +94,7 @@ def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
 	echo "In integrationTestJava: ${env.RELEASE_NUMBER}"
 	
 	def ocpAppSuffix = Globals.ocpAppSuffix;
-	def testEndpoint = "http://${app_name}-${ocp-project}.${ocpAppSuffix}"
+	def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
 	stage ('Integration Test') {
 		sh "mvn -s configuration/settings.xml -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
 		junit "${projectFolder}/target/surefire-reports/*.xml"
