@@ -10,12 +10,6 @@ def call(body) {
 	body()
 	
 	pipeline {
-		tools {
-			maven 'maven'
-			jdk 'jdk'
-			oc 'oc'
-			git 'git'
-		}
 		environment {
 			RELEASE_NUMBER = "";
 		}
