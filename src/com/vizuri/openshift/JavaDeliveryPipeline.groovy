@@ -10,6 +10,10 @@ def call(body) {
 	body()
 	
 	pipeline {
+		agent any
+		tools {
+			maven 'maven'
+		}
 		environment {
 			RELEASE_NUMBER = "";
 		}
