@@ -288,10 +288,10 @@ def getSlackToken(channel) {
 
 def notify(ocp_project, message) {
 	def channel;
-	if(ocp_project.sontains("test")) {
+	if(ocp_project.contains("test")) {
 		channel = "cicd-test"
 	}
-	else if(ocp_project_contains("prod")) {
+	else if(ocp_project.contains("prod")) {
 		channel = "cicd-prod"
 	}
 
