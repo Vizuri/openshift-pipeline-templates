@@ -55,6 +55,7 @@ def call(body) {
 					img = utils.dockerBuild(pipelineParams.app_name, projectFolder)					
 					utils.dockerPush(img)
 					utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name )
+					utils.integrationTestJava(pipelineParams.app_name, pipelineParams.ocp_dev_project, projectFolder)
 				}
 			}
 			if(utils.isRelease()) {

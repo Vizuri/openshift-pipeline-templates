@@ -7,6 +7,7 @@ class Globals {
 	static String containerRegistry = "https://quay.kee.vizuri.com"
 	//def containerRegistry = "docker-registry.default.svc:5000"
 	static String nexusUrl = "http://nexus-cicd.apps.aws-ocp-02.kee.vizuri.com"
+	static String ocpAppSuffix = "apps.aws-ocp-02.kee.vizuri.com"
 }
 
 def init(projectFolder = "./") {
@@ -89,11 +90,13 @@ def testJava(projectFolder = "./") {
 			]])
 	}
 }
-
-def integrationTestJava(projectFolder = "./") {
-	echo "In testJava: ${env.RELEASE_NUMBER}"
+def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
+	echo "In integrationTestJava: ${env.RELEASE_NUMBER}"
+	
+	def ocpAppSuffix = Globals.ocpAppSuffix;
+	def testEndpoint = "http://${app_name}-${ocp-project}.${ocpAppSuffix}"
 	stage ('Integration Test') {
-		sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} integration-test" 
+		sh "mvn -s configuration/settings.xml -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
 		junit "${projectFolder}/target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
