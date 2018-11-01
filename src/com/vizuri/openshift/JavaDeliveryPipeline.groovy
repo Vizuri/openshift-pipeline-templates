@@ -63,7 +63,7 @@ def call(body) {
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name, projectFolder)
 					utils.dockerPush(img)
-					utils.scanImage(pipelineParams.app_name )	
+					utils.scanImage(pipelineParams.app_name, projectFolder )	
 					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_test_project)			
 					utils.deployOpenshift(pipelineParams.ocp_test_cluster, pipelineParams.ocp_test_project, pipelineParams.app_name  )
 					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_prod_project)			

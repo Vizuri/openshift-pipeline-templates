@@ -172,7 +172,7 @@ def dockerBuild(app_name, projectFolder = "./") {
 def scanImage(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Scan') {
-		writeFile file: 'anchore_images', text: "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} Dockerfile"
+		writeFile file: 'anchore_images', text: "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} ${projectFolder}/Dockerfile"
 		sh 'cat anchore_images'
 		anchore name: 'anchore_images'
 	}
