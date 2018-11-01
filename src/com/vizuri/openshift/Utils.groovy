@@ -59,6 +59,7 @@ def helloWorld() {
 
 
 def buildJava(projectFolder = "./") {
+	def nexusUrl = Globals.nexusUrl;
 	echo "In buildJava: ${env.RELEASE_NUMBER}"
 	stage('Checkout') {
 		echo "In checkout"
@@ -66,13 +67,15 @@ def buildJava(projectFolder = "./") {
 	}
 	stage('Build') {
 		echo "In Build"
-		sh "mvn -s configuration/settings.xml -f ${projectFolder} -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
+		sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -f ${projectFolder} -DskipTests=true -Dbuild.number=${env.RELEASE_NUMBER} clean install"
 	}
 }
 def testJava(projectFolder = "./") {
+	def nexusUrl = Globals.nexusUrl;
+	
 	echo "In testJava: ${env.RELEASE_NUMBER}"
 	stage ('Unit Test') {
-		sh "mvn -s configuration/settings.xml -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} test"
+		sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER} test"
 		junit "${projectFolder}/target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
@@ -86,12 +89,13 @@ def testJava(projectFolder = "./") {
 }
 def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
 	echo "In integrationTestJava: ${env.RELEASE_NUMBER}"
+	def nexusUrl = Globals.nexusUrl;
 	
 	def ocpAppSuffix = Globals.ocpAppSuffix;
 	def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
 	stage ('Integration Test') {
 		def maven = tool 'maven'
-		sh "${maven}/bin/mvn -s configuration/settings.xml -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
+		sh "${maven}/bin/mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
 		junit "${projectFolder}/target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
