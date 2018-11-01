@@ -90,16 +90,18 @@ def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
 	def ocpAppSuffix = Globals.ocpAppSuffix;
 	def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
 	stage ('Integration Test') {
-		sh "mvn -s configuration/settings.xml -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
-		junit "${projectFolder}/target/surefire-reports/*.xml"
-
-		step([$class: 'XUnitBuilder',
-			thresholds: [
-				[$class: 'FailedThreshold', unstableThreshold: '1']
-			],
-			tools: [
-				[$class: "JUnitType", pattern: "${projectFolder}/target/surefire-reports/*.xml"]
-			]])
+		withMaven(maven: 'maven') {
+			sh "mvn -s configuration/settings.xml -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
+			junit "${projectFolder}/target/surefire-reports/*.xml"
+	
+			step([$class: 'XUnitBuilder',
+				thresholds: [
+					[$class: 'FailedThreshold', unstableThreshold: '1']
+				],
+				tools: [
+					[$class: "JUnitType", pattern: "${projectFolder}/target/surefire-reports/*.xml"]
+				]])
+			}
 	}
 }
 
