@@ -15,6 +15,7 @@ def call(body) {
 		}
 		node {
 			checkout scm;
+			sh "git branch -vv"
 		}
 		def projectFolder;
 		if(pipelineParams.project_folder) {
