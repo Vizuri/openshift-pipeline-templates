@@ -15,8 +15,8 @@ parameters:
   name: IMAGE_NAME
 - description: The exposed hostname that will route to the service, if left blank a value will be defaulted
   displayName: Java Optsions
-  name: JAVA_OPTS
-  value: "-Xms128m -Xmx256m"
+  name: JAVA_OPTIONS
+  value: "-Xms128m -Xmx256m -Dspring.profiles.active=openshift"
 - description: POD Memory Limit
   name: MEMORY_LIMIT
   value: 312Mi
