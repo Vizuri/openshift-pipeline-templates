@@ -92,8 +92,8 @@ objects:
         containers:
         - args:
           env:
-          - name: JAVA_OPTS
-            value: '${JAVA_OPTS}'
+          - name: JAVA_OPTIONS
+            value: '${JAVA_OPTIONS}'
           - name: MONGO_DATABASE_HOST
             value: '${DATABASE_HOST}'
           - name: MONGO_DATABASE_PORT
