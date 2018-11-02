@@ -270,6 +270,16 @@ def deployOpenshift(ocp_cluster, ocp_project, app_name) {
 		}
 	}
 }
+def mergeCode() {
+	def releaseBranch = "release/${env.RELEASE_NUMBER}"
+	echo "Merging ${releaseBranch}"
+	stage('Merge Release') {
+		sh "git checkout master"
+		sh "git pull origin master"
+		sh "git merge ${releaseBranch}"
+		sh "git push origin master"
+	}
+}
 
 def getSlackToken(channel) {
 	def token;

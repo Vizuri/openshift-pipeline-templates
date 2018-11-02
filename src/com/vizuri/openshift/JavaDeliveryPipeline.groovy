@@ -15,7 +15,6 @@ def call(body) {
 		}
 		node {
 			checkout scm;
-			sh "git branch -vv"
 		}
 		def projectFolder;
 		if(pipelineParams.project_folder) {
@@ -72,6 +71,7 @@ def call(body) {
 					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_prod_project)			
 					utils.deployOpenshift(pipelineParams.ocp_prod_cluster, pipelineParams.ocp_prod_project, pipelineParams.app_name  )
 					utils.integrationTestJava(pipelineParams.app_name, pipelineParams.ocp_prod_project, projectFolder)	
+					utils.mergeCode()
 				}
 			}
 		} catch (e) {
