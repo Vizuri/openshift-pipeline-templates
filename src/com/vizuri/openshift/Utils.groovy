@@ -274,8 +274,10 @@ def mergeCode() {
 	def releaseBranch = "release/${env.RELEASE_NUMBER}"
 	echo "Merging ${releaseBranch}"
 	stage('Merge Release') {
+		sh "git branch"
 		sh "git checkout master"
 		sh "git pull origin master"
+		sh "git branch -a"
 		sh "git merge ${releaseBranch}"
 		sh "git push origin master"
 	}
