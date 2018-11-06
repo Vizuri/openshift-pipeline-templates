@@ -13,6 +13,9 @@ def call(body) {
 		environment { RELEASE_NUMBER = ""; }
 		node {
 			checkout scm;
+			checkout([$class           : 'GitSCM',
+				branches         : [[name: "*/${PS_GIT_REF}"]],
+				userRemoteConfigs: [[url: "${PS_GIT_URI}"]]]);
 		}
 
 		def projectFolder;
