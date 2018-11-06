@@ -13,7 +13,7 @@ def call(body) {
 		environment { RELEASE_NUMBER = ""; }
 		node {
 			checkout([$class           : 'GitSCM',
-				branches         : [[name: "*/${PS_GIT_REF}"]],
+				branches         : [[name: "*/${BRANCH_NAME}"]],
 				userRemoteConfigs: [[url: "${PS_GIT_URI}"]]]);
 		}
 
