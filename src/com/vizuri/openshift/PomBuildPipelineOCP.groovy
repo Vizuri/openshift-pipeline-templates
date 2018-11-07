@@ -33,7 +33,7 @@ def call(body) {
 			echo "utils.isFeature():utils.isRelease():utils.isDevelop():${env.RELEASE_NUMBER}"
 
 			if( utils.isFeature() || utils.isDevelop() || utils.isRelease()) {
-				node('maven') {
+				node("maven") {
 					echo ">>> Before buildJava"
 					utils.buildJava(projectFolder)
 					stash name: 'artifacts'
@@ -41,7 +41,7 @@ def call(body) {
 			}
 
 			if(utils.isRelease() ||  utils.isDevelop()) {
-				node ('maven') {
+				node ("maven") {
 					unstash 'artifacts'
 					utils.deployJava(projectFolder)
 				}
