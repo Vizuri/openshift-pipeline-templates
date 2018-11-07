@@ -1,11 +1,9 @@
 package com.vizuri.openshift
 
-//def containerRegistry = "docker-registry.default.svc:5000"
 class Globals {
 	static String imageBase = "quay.kee.vizuri.com"
 	static String imageNamespace = "vizuri"
 	static String containerRegistry = "https://quay.kee.vizuri.com"
-	//def containerRegistry = "docker-registry.default.svc:5000"
 	static String nexusUrl = "http://nexus-cicd.apps.aws-ocp-02.kee.vizuri.com"
 	static String ocpAppSuffix = "apps.aws-ocp-02.kee.vizuri.com"
 }

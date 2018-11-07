@@ -69,7 +69,7 @@ def call(body) {
 					utils.confirmDeploy(pipelineParams.app_name,pipelineParams.ocp_prod_project)			
 					utils.deployOpenshift(pipelineParams.ocp_prod_cluster, pipelineParams.ocp_prod_project, pipelineParams.app_name  )
 					utils.integrationTestJava(pipelineParams.app_name, pipelineParams.ocp_prod_project, projectFolder)	
-					utils.mergeCode()
+					//utils.mergeCode()
 				}
 			}
 		} catch (e) {
