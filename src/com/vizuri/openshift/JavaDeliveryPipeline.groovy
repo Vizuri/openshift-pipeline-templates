@@ -50,7 +50,6 @@ def call(body) {
 
 			if(utils.isDevelop()) {
 				node {
-//					deleteDir()
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name, projectFolder)					
 					utils.dockerPush(img)
@@ -60,7 +59,6 @@ def call(body) {
 			}
 			if(utils.isRelease()) {
 				node {
-//					deleteDir()
 					unstash 'artifacts'
 					img = utils.dockerBuild(pipelineParams.app_name, projectFolder)
 					utils.dockerPush(img)

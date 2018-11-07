@@ -278,8 +278,8 @@ def mergeCode() {
 		sh "git checkout master"
 		sh "git pull origin master"
 		sh "git branch -a"
-		sh "git merge ${releaseBranch}"
-		sh "git push origin master"
+		//sh "git merge ${releaseBranch}"
+		//sh "git push origin master"
 	}
 }
 
