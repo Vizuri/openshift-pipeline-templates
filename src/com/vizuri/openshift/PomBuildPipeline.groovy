@@ -13,6 +13,7 @@ def call(body) {
 		environment { RELEASE_NUMBER = ""; }
 		node {
 			//checkout scm;
+			sh "env"
 			echo "Checkout ${BRANCH_NAME} ${GIT_SERVER}"
 			node {
 				checkout([$class           : 'GitSCM',
