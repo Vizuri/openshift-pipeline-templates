@@ -12,14 +12,7 @@ def call(body) {
 	pipeline {
 		environment { RELEASE_NUMBER = ""; }
 		node {
-			//checkout scm;
-			sh "env"
-			echo "Checkout ${BRANCH_NAME} ${GIT_SERVER}"
-			node {
-				checkout([$class           : 'GitSCM',
-					branches         : [[name: "*/${BRANCH_NAME}"]],
-					userRemoteConfigs: [[url: "${GIT_SERVER}"]]]);
-			}
+			checkout scm;
 		}
 
 		def projectFolder;
