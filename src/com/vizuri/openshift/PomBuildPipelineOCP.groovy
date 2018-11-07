@@ -34,6 +34,7 @@ def call(body) {
 
 			if( utils.isFeature() || utils.isDevelop() || utils.isRelease()) {
 				node('maven') {
+					echo ">>> Before buildJava"
 					utils.buildJava(projectFolder)
 					stash name: 'artifacts'
 				}
