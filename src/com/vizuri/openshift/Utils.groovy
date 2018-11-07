@@ -1,11 +1,11 @@
 package com.vizuri.openshift
 
 class Globals {
-	static String imageBase = "quay.kee.vizuri.com"
+	static String imageBase = "registry.kee.vizuri.com"
 	static String imageNamespace = "vizuri"
-	static String containerRegistry = "https://quay.kee.vizuri.com"
-	static String nexusUrl = "http://nexus-cicd.apps.aws-ocp-02.kee.vizuri.com"
-	static String ocpAppSuffix = "apps.aws-ocp-02.kee.vizuri.com"
+	static String containerRegistry = "https://registry.kee.vizuri.com"
+	static String nexusUrl = "http://nexus-cicd.apps.ocp-nonprod-01.kee.vizuri.com"
+	static String ocpAppSuffix = "apps.ocp-nonprod-01.kee.vizuri.com"
 }
 
 def init(projectFolder = "./") {
