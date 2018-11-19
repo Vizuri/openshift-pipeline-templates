@@ -176,6 +176,17 @@ def dockerBuild(app_name, projectFolder = "./") {
 		}
 	}
 }
+def dockerBuildOCP(app_name, projectFolder = "./") {
+	def tag = "${env.RELEASE_NUMBER}"
+	stage('Container Build') {
+		echo "In DockerBuild: ${app_name}:${tag}"
+		sh "podman build ${projectFolder} -t ${Globals.imageNamespace}/${app_name}:${tag}"
+		//docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
+		//	def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}", "${projectFolder}")
+		//	return img
+		//}
+	}
+}
 def scanImage(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Scan') {
