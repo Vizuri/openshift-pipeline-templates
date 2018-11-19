@@ -1,13 +1,19 @@
 package com.vizuri.openshift
 
 class Globals {
-	static String imageBase = "registry.kee.vizuri.com"
+	static String imageBase = "quay.kee.vizuri.com"
 	static String imageNamespace = "vizuri"
-	static String containerRegistry = "https://registry.kee.vizuri.com"
-	static String nexusUrl = "http://nexus-cicd.apps.ocp-nonprod-01.kee.vizuri.com"
-	static String ocpAppSuffix = "apps.ocp-nonprod-01.kee.vizuri.com"
+	static String containerRegistry = "https://quay.kee.vizuri.com"
+	static String nexusUrl = "http://nexus-cicd.apps.aws-ocp-02.kee.vizuri.com"
+	static String ocpAppSuffix = "apps.aws-ocp-02.kee.vizuri.com"
 }
-
+//class Globals {
+//	static String imageBase = "registry.kee.vizuri.com"
+//	static String imageNamespace = "vizuri"
+//	static String containerRegistry = "https://registry.kee.vizuri.com"
+//	static String nexusUrl = "http://nexus-cicd.apps.ocp-nonprod-01.kee.vizuri.com"
+//	static String ocpAppSuffix = "apps.ocp-nonprod-01.kee.vizuri.com"
+//}
 def init(projectFolder = "./") {
 	node {
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
@@ -115,12 +121,13 @@ def analyzeJava(projectFolder = "./") {
 		sh "cat ${projectFolder}/pom.xml"
 
 		def pom = readMavenPom file: "${projectFolder}/pom.xml"
+		release_number = pom.properties.get("build.number")
 
 		writeFile encoding: 'UTF-8', file: 'sonar-project.properties', text: """
 		  sonar.projectBaseDir=${projectFolder}
-          sonar.projectKey=$pom.groupId:$pom.artifactId
+          sonar.projectKey=$pom.artifactId
           sonar.projectName=$pom.name
-          sonar.projectVersion=$pom.version
+          sonar.projectVersion=$release_number
 	      sonar.java.binaries=target/classes
 	      sonar.tests=target/jacoco.exec
           sonar.sources=src/main/java"""
