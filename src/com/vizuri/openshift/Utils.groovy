@@ -197,8 +197,8 @@ def dockerPushOCP(app_name) {
 		echo "In DockerPushOCP:"
 		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'quay-credentials',
 			usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-
-			sh "podman login -u ${PASSWORD} -p ${USERNAME} ${Globals.imageBase}"
+			echo "-u ${USERNAME} -p ${PASSWORD}"
+			sh "podman login -u ${USERNAME} -p ${PASSWORD} ${Globals.imageBase}"
 			sh "podman push ${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
 		}
 	}
