@@ -181,10 +181,6 @@ def dockerBuildOCP(app_name, projectFolder = "./") {
 	stage('Container Build') {
 		echo "In DockerBuildOCP: ${app_name}:${tag}"
 		sh "podman build -t ${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} ${projectFolder}"
-		//docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
-		//	def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}", "${projectFolder}")
-		//	return img
-		//}
 	}
 }
 def scanImage(app_name, projectFolder = "./") {
@@ -199,8 +195,12 @@ def dockerPushOCP(app_name) {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Push') {
 		echo "In DockerPushOCP:"
-		sh "podman login -u admin -p P@ssw0rd ${Globals.imageBase}"
-		sh "podman push ${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
+		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'quay-credentials',
+			usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+
+			sh "podman login -u ${PASSWORD} -p ${USERNAME} ${Globals.imageBase}"
+			sh "podman push ${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
+		}
 	}
 }
 
