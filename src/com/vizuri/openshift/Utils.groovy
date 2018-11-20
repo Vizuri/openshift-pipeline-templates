@@ -28,7 +28,7 @@ def init(projectFolder = "./") {
 		}
 		else {
 			release_number = sh ( 
-				script: 'mvn help:evaluate -Dexpression=project.version | grep -e "^[^\[]"',
+				script: 'mvn help:evaluate -Dexpression=project.version | grep -e "^[^\\[]"',
 				returnStdout: true
 			)
 			//release_number = "1.0.0-SNAPSHOT"
