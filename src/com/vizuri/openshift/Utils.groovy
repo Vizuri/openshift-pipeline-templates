@@ -27,7 +27,11 @@ def init(projectFolder = "./") {
 			release_number = branch_release_number
 		}
 		else {
-			release_number = "1.0.0-SNAPSHOT"
+			release_number = sh ( 
+				script: "mvn help:evaluate -Dexpression=project.version | grep -e '^[^\[]'",
+				returnStdout: true
+			)
+			//release_number = "1.0.0-SNAPSHOT"
 			//def pom = readMavenPom file: "${projectFolder}/pom.xml"
 			//release_number = pom.properties.get("build.number")
 			echo "release_number: ${release_number}"
@@ -150,7 +154,7 @@ def dockerBuild(app_name, projectFolder = "./") {
 		}
 	}
 }
-def dockerBuildOCP(app_name, projectFolder = "./") {
+def podmanBuild(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Build') {
 		echo "In DockerBuildOCP: ${app_name}:${tag}"
@@ -165,7 +169,7 @@ def scanImage(app_name, projectFolder = "./") {
 		anchore name: 'anchore_images'
 	}
 }
-def dockerPushOCP(app_name) {
+def podmanPush(app_name) {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Push') {
 		echo "In DockerPushOCP:"
