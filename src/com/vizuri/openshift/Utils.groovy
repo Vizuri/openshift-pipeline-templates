@@ -111,6 +111,7 @@ def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
 }
 
 def analyzeJava(projectFolder = "./") {
+	def nexusUrl = Globals.nexusUrl;
 	stage('SonarQube Analysis') {
 		//unstash "project-stash"
 
