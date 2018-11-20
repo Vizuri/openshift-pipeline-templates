@@ -27,11 +27,12 @@ def init(projectFolder = "./") {
 			release_number = branch_release_number
 		}
 		else {
-			release_number = sh ( 
-				script: "mvn -B help:evaluate -Dexpression=project.version | grep -e '^[^\\[]'",
+			sh ( 
+				script: "mvn -B help:evaluate -Dexpression=project.version | grep -e '^[^\\[]' > release.txt",
 				returnStdout: true,
 				returnStatus: false
 			)
+			release_number = readFile('release.txt').trim()
 			//release_number = "1.0.0-SNAPSHOT"
 			//def pom = readMavenPom file: "${projectFolder}/pom.xml"
 			//release_number = pom.properties.get("build.number")
