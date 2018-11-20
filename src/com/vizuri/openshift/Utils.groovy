@@ -57,9 +57,6 @@ def isDevelop() {
 	}
 	return false;
 }
-def helloWorld() {
-	println("helloworkd");
-}
 
 
 def buildJava(projectFolder = "./") {
@@ -197,8 +194,8 @@ def dockerPushOCP(app_name) {
 		echo "In DockerPushOCP:"
 		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'quay-credentials',
 			usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-			echo "-u ${USERNAME} -p ${PASSWORD}"
-			sh "podman login -u ${USERNAME} -p ${PASSWORD} ${Globals.imageBase}"
+			echo "-u $USERNAME -p $PASSWORD"
+			sh "podman login -u $USERNAME -p $PASSWORD ${Globals.imageBase}"
 			sh "podman push ${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
 		}
 	}
