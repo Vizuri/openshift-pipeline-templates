@@ -180,7 +180,7 @@ def dockerBuildOCP(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Build') {
 		echo "In DockerBuildOCP: ${app_name}:${tag}"
-		sh "podman build -t ${Globals.imageNamespace}/${app_name}:${tag} ${projectFolder}"
+		sh "podman build -t ${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} ${projectFolder}"
 		//docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
 		//	def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}", "${projectFolder}")
 		//	return img
