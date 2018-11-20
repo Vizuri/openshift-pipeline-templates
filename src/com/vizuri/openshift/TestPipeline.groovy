@@ -9,13 +9,16 @@ def call(body) {
 	body.delegate = pipelineParams
 	body()
 	
+	def utils = new com.vizuri.openshift.Utils();
+	
+	
 	pipeline {
 		environment {
 			RELEASE_NUMBER = "";
 		}
 		node {
 			checkout scm;
-			
+			echo "Hello World"
 		}
 	}
 }
