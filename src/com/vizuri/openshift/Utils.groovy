@@ -96,8 +96,7 @@ def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
 	def ocpAppSuffix = Globals.ocpAppSuffix;
 	def testEndpoint = "http://${app_name}-${ocp_project}.${ocpAppSuffix}"
 	stage ('Integration Test') {
-		def maven = tool 'maven'
-		sh "${maven}/bin/mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
+		sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -f ${projectFolder} -P integration-tests -Dbuild.number=${env.RELEASE_NUMBER} -DbaseUrl=${testEndpoint} integration-test" 
 		junit "${projectFolder}/target/surefire-reports/*.xml"
 
 		step([$class: 'XUnitBuilder',
@@ -112,32 +111,7 @@ def integrationTestJava(app_name, ocp_project, projectFolder = "./") {
 
 def analyzeJava(projectFolder = "./") {
 	def nexusUrl = Globals.nexusUrl;
-	stage('SonarQube Analysis') {
-		//unstash "project-stash"
-
-
-//		sh "ls ${projectFolder}"
-//		sh "cat ${projectFolder}/pom.xml"
-//
-//		def pom = readMavenPom file: "${projectFolder}/pom.xml"
-//		release_number = pom.properties.get("build.number")
-//
-//		writeFile encoding: 'UTF-8', file: 'sonar-project.properties', text: """
-//		  sonar.projectBaseDir=${projectFolder}
-//          sonar.projectKey=$pom.artifactId
-//          sonar.projectName=$pom.name
-//          sonar.projectVersion=$release_number
-//	      sonar.java.binaries=target/classes
-//	      sonar.tests=target/jacoco.exec
-//          sonar.sources=src/main/java"""
-//		archive 'sonar-project.properties'
-//
-//		sh "cat sonar-project.properties"
-//
-//		def scannerHome = tool 'sonar';
-//
-//		withSonarQubeEnv('sonar') { sh "${scannerHome}/bin/sonar-scanner" }
-		
+	stage('SonarQube Analysis') {		
 		withSonarQubeEnv('sonar') { sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER}  sonar:sonar" }
 	}
 
