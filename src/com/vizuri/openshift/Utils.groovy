@@ -28,8 +28,9 @@ def init(projectFolder = "./") {
 		}
 		else {
 			release_number = sh ( 
-				script: 'mvn -B help:evaluate -Dexpression=project.version | grep -e "^[^\\[]"',
-				returnStdout: true
+				script: "mvn -B help:evaluate -Dexpression=project.version | grep -e '^[^\\[]'",
+				returnStdout: true,
+				returnStatus: false
 			)
 			//release_number = "1.0.0-SNAPSHOT"
 			//def pom = readMavenPom file: "${projectFolder}/pom.xml"
