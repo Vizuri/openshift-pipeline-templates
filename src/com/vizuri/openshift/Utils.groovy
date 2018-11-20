@@ -115,28 +115,29 @@ def analyzeJava(projectFolder = "./") {
 		//unstash "project-stash"
 
 
-		sh "ls ${projectFolder}"
-		sh "cat ${projectFolder}/pom.xml"
-
-		def pom = readMavenPom file: "${projectFolder}/pom.xml"
-		release_number = pom.properties.get("build.number")
-
-		writeFile encoding: 'UTF-8', file: 'sonar-project.properties', text: """
-		  sonar.projectBaseDir=${projectFolder}
-          sonar.projectKey=$pom.artifactId
-          sonar.projectName=$pom.name
-          sonar.projectVersion=$release_number
-	      sonar.java.binaries=target/classes
-	      sonar.tests=target/jacoco.exec
-          sonar.sources=src/main/java"""
-		archive 'sonar-project.properties'
-
-		sh "cat sonar-project.properties"
-
-		def scannerHome = tool 'sonar';
-
-		withSonarQubeEnv('sonar') { sh "${scannerHome}/bin/sonar-scanner" }
-
+//		sh "ls ${projectFolder}"
+//		sh "cat ${projectFolder}/pom.xml"
+//
+//		def pom = readMavenPom file: "${projectFolder}/pom.xml"
+//		release_number = pom.properties.get("build.number")
+//
+//		writeFile encoding: 'UTF-8', file: 'sonar-project.properties', text: """
+//		  sonar.projectBaseDir=${projectFolder}
+//          sonar.projectKey=$pom.artifactId
+//          sonar.projectName=$pom.name
+//          sonar.projectVersion=$release_number
+//	      sonar.java.binaries=target/classes
+//	      sonar.tests=target/jacoco.exec
+//          sonar.sources=src/main/java"""
+//		archive 'sonar-project.properties'
+//
+//		sh "cat sonar-project.properties"
+//
+//		def scannerHome = tool 'sonar';
+//
+//		withSonarQubeEnv('sonar') { sh "${scannerHome}/bin/sonar-scanner" }
+		
+		withSonarQubeEnv('sonar') { sh "mvn sonar:sonar" }
 	}
 
 
