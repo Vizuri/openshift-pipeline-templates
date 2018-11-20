@@ -196,6 +196,7 @@ def scanImage(app_name, projectFolder = "./") {
 	}
 }
 def dockerPushOCP(app_name) {
+	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Push') {
 		echo "In DockerPushOCP:"
 		sh "podman login -u admin -p P@ssw0rd ${Globals.imageBase}"
