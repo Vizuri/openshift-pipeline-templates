@@ -137,7 +137,7 @@ def analyzeJava(projectFolder = "./") {
 //
 //		withSonarQubeEnv('sonar') { sh "${scannerHome}/bin/sonar-scanner" }
 		
-		withSonarQubeEnv('sonar') { sh "mvn sonar:sonar" }
+		withSonarQubeEnv('sonar') { sh "mvn -s configuration/settings.xml -Dnexus.url=${nexusUrl} -f ${projectFolder} -Dbuild.number=${env.RELEASE_NUMBER}  sonar:sonar" }
 	}
 
 
