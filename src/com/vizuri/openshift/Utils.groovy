@@ -27,8 +27,9 @@ def init(projectFolder = "./") {
 			release_number = branch_release_number
 		}
 		else {
-			def pom = readMavenPom file: "${projectFolder}/pom.xml"
-			release_number = pom.properties.get("build.number")
+			release_number = "1.0.0-SNAPSHOT"
+			//def pom = readMavenPom file: "${projectFolder}/pom.xml"
+			//release_number = pom.properties.get("build.number")
 			echo "release_number: ${release_number}"
 		}
 
