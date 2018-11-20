@@ -15,7 +15,7 @@ class Globals {
 //	static String ocpAppSuffix = "apps.ocp-nonprod-01.kee.vizuri.com"
 //}
 def init(projectFolder = "./") {
-	node (maven) {
+	node ("maven") {
 		echo ">>>>>>  Branch Name: " + BRANCH_NAME;
 		def release_number;
 
