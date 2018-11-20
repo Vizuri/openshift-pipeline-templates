@@ -179,7 +179,7 @@ def dockerBuild(app_name, projectFolder = "./") {
 def dockerBuildOCP(app_name, projectFolder = "./") {
 	def tag = "${env.RELEASE_NUMBER}"
 	stage('Container Build') {
-		echo "In DockerBuild: ${app_name}:${tag}"
+		echo "In DockerBuildOCP: ${app_name}:${tag}"
 		sh "podman build ${projectFolder} -t ${Globals.imageNamespace}/${app_name}:${tag}"
 		//docker.withRegistry(Globals.containerRegistry, "docker-credentials") {
 		//	def img = docker.build("${Globals.imageNamespace}/${app_name}:${tag}", "${projectFolder}")
@@ -193,6 +193,13 @@ def scanImage(app_name, projectFolder = "./") {
 		writeFile file: 'anchore_images', text: "${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag} ${projectFolder}/Dockerfile"
 		sh 'cat anchore_images'
 		anchore name: 'anchore_images'
+	}
+}
+def dockerPushOCP(app_name) {
+	stage('Container Push') {
+		echo "In DockerPushOCP:"
+		sh "podman login -u admin -p P@ssw0rd ${Globals.imageBase}"
+		sh "podman push ${Globals.imageBase}/${Globals.imageNamespace}/${app_name}:${tag}"
 	}
 }
 

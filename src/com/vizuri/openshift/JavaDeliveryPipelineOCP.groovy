@@ -52,7 +52,8 @@ def call(body) {
 				//node ('buildah') {
 				node ('podman') {
 					unstash 'artifacts'
-				    img = utils.dockerBuildOCP(pipelineParams.app_name, projectFolder)					
+				    utils.dockerBuildOCP(pipelineParams.app_name, projectFolder)	
+					utils.dockerPushOCP(pipelineParams.app_name)			
 					//utils.dockerPush(img)
 					//utils.deployOpenshift(pipelineParams.ocp_dev_cluster, pipelineParams.ocp_dev_project, pipelineParams.app_name )
 					//utils.integrationTestJava(pipelineParams.app_name, pipelineParams.ocp_dev_project, projectFolder)
